@@ -13,7 +13,6 @@
     font-family: 'Nanum Myeongjo', serif;
     background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
     color: #fff;
-    cursor: pointer; /* 클릭 유도 */
   }
 
   /* 별 배경 */
@@ -44,6 +43,7 @@
     align-items: center;
     justify-content: center;
     z-index: 10;
+    pointer-events: none;
   }
 
   .message-box {
@@ -79,15 +79,6 @@
     text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
     font-weight: bold;
   }
-  
-  /* 클릭 안내 문구 */
-  .click-hint {
-    position: absolute;
-    bottom: 20px;
-    font-size: 0.8rem;
-    color: rgba(255,255,255,0.3);
-    animation: blink 3s infinite;
-  }
 
   @keyframes animStar {
     from { transform: translateY(0px); }
@@ -100,11 +91,6 @@
 
   @keyframes textFadeIn {
     to { opacity: 1; transform: translateY(0); }
-  }
-  
-  @keyframes blink {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.7; }
   }
 
   @media (max-width: 768px) {
@@ -120,18 +106,19 @@
 
   <div id="stars"></div>
 
-  <!-- 유튜브 음악 (화면에 보이지 않게 숨김) -->
-  <div style="position:fixed; left:-9999px;">
-    <!-- Diamond Eyes - Everything -->
+  <!-- 유튜브 음악 자동 재생 설정 -->
+  <!-- BGM: The Road to Your Inspiration - Free Nanum Music -->
+  <div style="position:fixed; top:0; left:0; width:1px; height:1px; overflow:hidden; opacity:0;">
     <iframe id="bgm" width="560" height="315" 
-      src="https://www.youtube.com/embed/jNWlQ5_kE6g?enablejsapi=1&controls=0&loop=1&playlist=_XspQUK22-U" 
-      title="YouTube video player" frameborder="0" 
+      src="https://www.youtube.com/embed/wQp4A7k2v-c?autoplay=1&mute=0&controls=0&loop=1&playlist=wQp4A7k2v-c&start=0" 
+      title="Background Music" 
+      frameborder="0" 
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
       allowfullscreen>
     </iframe>
   </div>
 
-  <div class="container" onclick="playMusic()">
+  <div class="container">
     <div class="message-box">
       <span class="line">당신이 오늘 마치려던 그 일,</span><br>
       <span class="line">딱 <span class="highlight">하루만</span> 미뤄주실 수 있나요?</span><br><br>
@@ -140,11 +127,10 @@
       
       <span class="line">언젠가 다시 웃을 이유 하나쯤은<br>반드시 당신을 찾아올 테니까요.</span>
     </div>
-    <div class="click-hint">화면을 클릭하면 음악이 흐릅니다</div>
   </div>
 
 <script>
-  // 별 생성 스크립트
+  // 별 배경 생성
   const createStars = () => {
     const styleElem = document.createElement('style');
     let boxShadowValue = '';
@@ -165,18 +151,6 @@
     if(document.head.lastChild.tagName === 'STYLE') document.head.lastChild.remove();
     createStars();
   });
-
-  // 음악 재생 스크립트 (크롬 정책 대응)
-  function playMusic() {
-    var iframe = document.getElementById("bgm");
-    var src = iframe.src;
-    // 이미 재생 중이면 리로드 하지 않음
-    if(src.indexOf("autoplay=1") === -1) {
-      iframe.src = src + "&autoplay=1";
-    }
-    // 힌트 문구 제거
-    document.querySelector('.click-hint').style.display = 'none';
-  }
 </script>
 </body>
 </html>
