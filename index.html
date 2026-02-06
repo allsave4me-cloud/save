@@ -2,33 +2,138 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>살고싶어.com</title>
-
+<title>To You</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
 <style>
-body {
+  html, body {
+    height: 100%;
     margin: 0;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #111;
+    overflow: hidden;
+    font-family: 'Nanum Myeongjo', serif; /* 감성적인 명조체 사용 */
+    background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%); /* 깊은 밤하늘 색상 */
     color: #fff;
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-}
+  }
 
-.quote {
+  /* 별이 반짝이는 배경 애니메이션 */
+  #stars {
+    width: 1px;
+    height: 1px;
+    background: transparent;
+    box-shadow: 1744px 122px #FFF , 134px 1321px #FFF , 92px 859px #FFF; /* 예시 좌표들, 실제로는 JS로 더 많이 생성 가능 */
+    animation: animStar 50s linear infinite;
+  }
+  
+  #stars:after {
+    content: " ";
+    position: absolute;
+    top: 2000px;
+    width: 1px;
+    height: 1px;
+    background: transparent;
+    box-shadow: 1744px 122px #FFF , 134px 1321px #FFF , 92px 859px #FFF;
+  }
+
+  .container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+
+  .message-box {
     text-align: center;
-    font-size: 3vw;
+    line-height: 2.2;
+    font-size: 1.4rem;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.05); /* 아주 옅은 유리 효과 */
+    border-radius: 20px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     max-width: 80%;
-    line-height: 1.4;
-}
+    opacity: 0;
+    animation: fadeInUp 2s ease-out forwards; /* 전체 박스 등장 애니메이션 */
+    animation-delay: 0.5s;
+  }
+
+  .line {
+    display: block;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 1s ease;
+  }
+
+  /* 각 줄이 순차적으로 나타나도록 설정 */
+  .line:nth-child(1) { animation: textFadeIn 1s ease-out forwards 1.0s; }
+  .line:nth-child(2) { animation: textFadeIn 1s ease-out forwards 2.5s; }
+  .line:nth-child(3) { animation: textFadeIn 1s ease-out forwards 4.0s; }
+  .line:nth-child(4) { animation: textFadeIn 1s ease-out forwards 5.5s; font-weight: 700; color: #ffebd2; /* 강조색 */ }
+
+  /* 강조 텍스트 스타일 */
+  .highlight {
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  }
+
+  @keyframes animStar {
+    from { transform: translateY(0px); }
+    to { transform: translateY(-2000px); }
+  }
+
+  @keyframes fadeInUp {
+    to { opacity: 1; }
+  }
+
+  @keyframes textFadeIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 모바일 대응 */
+  @media (max-width: 768px) {
+    .message-box {
+      font-size: 1.1rem;
+      padding: 20px;
+      width: 90%;
+    }
+  }
 </style>
 </head>
-
 <body>
-<div class="quote">
-    This too shall pass.
-</div>
+
+  <!-- 별 배경 효과 -->
+  <div id="stars"></div>
+
+  <div class="container">
+    <div class="message-box">
+      <span class="line">당신이 오늘 마치려던 그 일,<br> 딱 <span class="highlight">하루만</span> 미뤄주실 수 있나요?</span>
+      <br>
+      <span class="line">그리고 또 하루, 또 하루...</span>
+      <br>
+      <span class="line">그렇게 버텨낸 시간들이 모이면,</span>
+      <br>
+      <span class="line">언젠가 다시 웃을 이유 하나쯤은<br>당신을 찾아올지도 모르니까요.</span>
+    </div>
+  </div>
+
+<script>
+  // 배경에 별을 랜덤하게 더 많이 뿌려주는 스크립트
+  const createStars = () => {
+    const starContainer = document.getElementById('stars');
+    let boxShadowValue = '';
+    for(let i = 0; i < 200; i++) {
+      const x = Math.floor(Math.random() * window.innerWidth);
+      const y = Math.floor(Math.random() * 2000);
+      boxShadowValue += `${x}px ${y}px #FFF, `;
+    }
+    starContainer.style.boxShadow = boxShadowValue.slice(0, -2);
+  };
+  createStars();
+</script>
 </body>
 </html>
