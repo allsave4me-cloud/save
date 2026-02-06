@@ -13,6 +13,7 @@
     font-family: 'Nanum Myeongjo', serif;
     background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
     color: #fff;
+    cursor: pointer; /* 클릭 유도 */
   }
 
   /* 별 배경 */
@@ -47,7 +48,7 @@
 
   .message-box {
     text-align: center;
-    line-height: 2.4; /* 줄 간격 여유 있게 조정 */
+    line-height: 2.4;
     font-size: 1.4rem;
     padding: 40px;
     background: rgba(255, 255, 255, 0.03);
@@ -63,13 +64,11 @@
   }
 
   .line {
-    display: inline-block; /* block 대신 inline-block으로 자연스럽게 */
+    display: inline-block;
     opacity: 0;
     transform: translateY(20px);
-    /* transition 제거하고 animation으로만 제어 */
   }
 
-  /* nth-of-type을 사용하여 br 태그 무시하고 span만 순서대로 타겟팅 */
   .line:nth-of-type(1) { animation: textFadeIn 1.5s ease-out forwards 1.2s; }
   .line:nth-of-type(2) { animation: textFadeIn 1.5s ease-out forwards 3.0s; }
   .line:nth-of-type(3) { animation: textFadeIn 1.5s ease-out forwards 4.8s; }
@@ -79,6 +78,15 @@
     color: #ffd700;
     text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
     font-weight: bold;
+  }
+  
+  /* 클릭 안내 문구 */
+  .click-hint {
+    position: absolute;
+    bottom: 20px;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.3);
+    animation: blink 3s infinite;
   }
 
   @keyframes animStar {
@@ -92,6 +100,11 @@
 
   @keyframes textFadeIn {
     to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes blink {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.7; }
   }
 
   @media (max-width: 768px) {
@@ -107,7 +120,18 @@
 
   <div id="stars"></div>
 
-  <div class="container">
+  <!-- 유튜브 음악 (화면에 보이지 않게 숨김) -->
+  <div style="position:fixed; left:-9999px;">
+    <!-- Diamond Eyes - Everything -->
+    <iframe id="bgm" width="560" height="315" 
+      src="https://www.youtube.com/embed/_XspQUK22-U?enablejsapi=1&controls=0&loop=1&playlist=_XspQUK22-U" 
+      title="YouTube video player" frameborder="0" 
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+      allowfullscreen>
+    </iframe>
+  </div>
+
+  <div class="container" onclick="playMusic()">
     <div class="message-box">
       <span class="line">당신이 오늘 마치려던 그 일,</span><br>
       <span class="line">딱 <span class="highlight">하루만</span> 미뤄주실 수 있나요?</span><br><br>
@@ -116,41 +140,43 @@
       
       <span class="line">언젠가 다시 웃을 이유 하나쯤은<br>반드시 당신을 찾아올 테니까요.</span>
     </div>
+    <div class="click-hint">화면을 클릭하면 음악이 흐릅니다</div>
   </div>
 
 <script>
+  // 별 생성 스크립트
   const createStars = () => {
-    const starContainer = document.getElementById('stars');
     const styleElem = document.createElement('style');
     let boxShadowValue = '';
-    
-    // 별의 개수를 늘리고 화면 전체에 퍼지도록 설정
     for(let i = 0; i < 400; i++) {
       const x = Math.floor(Math.random() * window.innerWidth);
       const y = Math.floor(Math.random() * 2000);
-      const size = Math.random() * 2; // 별 크기 다양화
+      const size = Math.random() * 2; 
       boxShadowValue += `${x}px ${y}px 0 ${size}px #FFF, `;
     }
-    
-    // 마지막 쉼표 제거
     boxShadowValue = boxShadowValue.slice(0, -2);
-    
-    // CSS 가상 요소에 동적으로 값 주입
-    const cssRules = `
-      #stars, #stars:after { box-shadow: ${boxShadowValue}; }
-    `;
+    const cssRules = `#stars, #stars:after { box-shadow: ${boxShadowValue}; }`;
     styleElem.type = 'text/css';
     styleElem.appendChild(document.createTextNode(cssRules));
     document.head.appendChild(styleElem);
   };
-  
   createStars();
-
-  // 리사이즈 시 별 위치 재계산
   window.addEventListener('resize', () => {
-    document.head.lastChild.remove(); // 기존 스타일 제거
+    if(document.head.lastChild.tagName === 'STYLE') document.head.lastChild.remove();
     createStars();
   });
+
+  // 음악 재생 스크립트 (크롬 정책 대응)
+  function playMusic() {
+    var iframe = document.getElementById("bgm");
+    var src = iframe.src;
+    // 이미 재생 중이면 리로드 하지 않음
+    if(src.indexOf("autoplay=1") === -1) {
+      iframe.src = src + "&autoplay=1";
+    }
+    // 힌트 문구 제거
+    document.querySelector('.click-hint').style.display = 'none';
+  }
 </script>
 </body>
 </html>
