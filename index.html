@@ -3,23 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <title>To You</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
 <style>
   html, body {
     height: 100%;
     margin: 0;
     overflow: hidden;
-    font-family: 'Nanum Myeongjo', serif; /* 감성적인 명조체 사용 */
-    background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%); /* 깊은 밤하늘 색상 */
+    font-family: 'Nanum Myeongjo', serif;
+    background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
     color: #fff;
   }
 
-  /* 별이 반짝이는 배경 애니메이션 */
+  /* 별 배경 */
   #stars {
     width: 1px;
     height: 1px;
     background: transparent;
-    box-shadow: 1744px 122px #FFF , 134px 1321px #FFF , 92px 859px #FFF; /* 예시 좌표들, 실제로는 JS로 더 많이 생성 가능 */
     animation: animStar 50s linear infinite;
   }
   
@@ -30,7 +30,6 @@
     width: 1px;
     height: 1px;
     background: transparent;
-    box-shadow: 1744px 122px #FFF , 134px 1321px #FFF , 92px 859px #FFF;
   }
 
   .container {
@@ -48,37 +47,38 @@
 
   .message-box {
     text-align: center;
-    line-height: 2.2;
+    line-height: 2.4; /* 줄 간격 여유 있게 조정 */
     font-size: 1.4rem;
     padding: 40px;
-    background: rgba(255, 255, 255, 0.05); /* 아주 옅은 유리 효과 */
+    background: rgba(255, 255, 255, 0.03);
     border-radius: 20px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    max-width: 80%;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(3px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    max-width: 90%;
+    width: 600px;
     opacity: 0;
-    animation: fadeInUp 2s ease-out forwards; /* 전체 박스 등장 애니메이션 */
+    animation: fadeInUp 2s ease-out forwards;
     animation-delay: 0.5s;
   }
 
   .line {
-    display: block;
+    display: inline-block; /* block 대신 inline-block으로 자연스럽게 */
     opacity: 0;
     transform: translateY(20px);
-    transition: all 1s ease;
+    /* transition 제거하고 animation으로만 제어 */
   }
 
-  /* 각 줄이 순차적으로 나타나도록 설정 */
-  .line:nth-child(1) { animation: textFadeIn 1s ease-out forwards 1.0s; }
-  .line:nth-child(2) { animation: textFadeIn 1s ease-out forwards 2.5s; }
-  .line:nth-child(3) { animation: textFadeIn 1s ease-out forwards 4.0s; }
-  .line:nth-child(4) { animation: textFadeIn 1s ease-out forwards 5.5s; font-weight: 700; color: #ffebd2; /* 강조색 */ }
+  /* nth-of-type을 사용하여 br 태그 무시하고 span만 순서대로 타겟팅 */
+  .line:nth-of-type(1) { animation: textFadeIn 1.5s ease-out forwards 1.2s; }
+  .line:nth-of-type(2) { animation: textFadeIn 1.5s ease-out forwards 3.0s; }
+  .line:nth-of-type(3) { animation: textFadeIn 1.5s ease-out forwards 4.8s; }
+  .line:nth-of-type(4) { animation: textFadeIn 1.5s ease-out forwards 6.5s; color: #ffebd2; }
 
-  /* 강조 텍스트 스타일 */
   .highlight {
     color: #ffd700;
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    font-weight: bold;
   }
 
   @keyframes animStar {
@@ -94,46 +94,63 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* 모바일 대응 */
   @media (max-width: 768px) {
     .message-box {
       font-size: 1.1rem;
-      padding: 20px;
-      width: 90%;
+      padding: 25px;
+      line-height: 2.0;
     }
   }
 </style>
 </head>
 <body>
 
-  <!-- 별 배경 효과 -->
   <div id="stars"></div>
 
   <div class="container">
     <div class="message-box">
-      <span class="line">당신이 오늘 마치려던 그 일,<br> 딱 <span class="highlight">하루만</span> 미뤄주실 수 있나요?</span>
-      <br>
-      <span class="line">그리고 또 하루, 또 하루...</span>
-      <br>
-      <span class="line">그렇게 버텨낸 시간들이 모이면,</span>
-      <br>
-      <span class="line">언젠가 다시 웃을 이유 하나쯤은<br>당신을 찾아올지도 모르니까요.</span>
+      <span class="line">당신이 오늘 마치려던 그 일,</span><br>
+      <span class="line">딱 <span class="highlight">하루만</span> 미뤄주실 수 있나요?</span><br><br>
+      
+      <span class="line">그리고 또 하루, 또 하루...<br>그렇게 버텨낸 시간들이 모이면,</span><br><br>
+      
+      <span class="line">언젠가 다시 웃을 이유 하나쯤은<br>반드시 당신을 찾아올 테니까요.</span>
     </div>
   </div>
 
 <script>
-  // 배경에 별을 랜덤하게 더 많이 뿌려주는 스크립트
   const createStars = () => {
     const starContainer = document.getElementById('stars');
+    const styleElem = document.createElement('style');
     let boxShadowValue = '';
-    for(let i = 0; i < 200; i++) {
+    
+    // 별의 개수를 늘리고 화면 전체에 퍼지도록 설정
+    for(let i = 0; i < 400; i++) {
       const x = Math.floor(Math.random() * window.innerWidth);
       const y = Math.floor(Math.random() * 2000);
-      boxShadowValue += `${x}px ${y}px #FFF, `;
+      const size = Math.random() * 2; // 별 크기 다양화
+      boxShadowValue += `${x}px ${y}px 0 ${size}px #FFF, `;
     }
-    starContainer.style.boxShadow = boxShadowValue.slice(0, -2);
+    
+    // 마지막 쉼표 제거
+    boxShadowValue = boxShadowValue.slice(0, -2);
+    
+    // CSS 가상 요소에 동적으로 값 주입
+    const cssRules = `
+      #stars, #stars:after { box-shadow: ${boxShadowValue}; }
+    `;
+    styleElem.type = 'text/css';
+    styleElem.appendChild(document.createTextNode(cssRules));
+    document.head.appendChild(styleElem);
   };
+  
   createStars();
+
+  // 리사이즈 시 별 위치 재계산
+  window.addEventListener('resize', () => {
+    document.head.lastChild.remove(); // 기존 스타일 제거
+    createStars();
+  });
 </script>
 </body>
 </html>
