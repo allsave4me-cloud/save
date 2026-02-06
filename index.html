@@ -13,118 +13,70 @@
     font-family: 'Nanum Myeongjo', serif;
     background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
     color: #fff;
-    cursor: pointer; /* 클릭 유도 */
+    cursor: pointer;
   }
 
-  /* 별 배경 */
-  #stars {
-    width: 1px;
-    height: 1px;
-    background: transparent;
-    animation: animStar 50s linear infinite;
+  /* [추가] 드래그했을 때의 스타일 설정 */
+  /* 드래그하면 배경은 황금색, 글자는 흰색으로 보이게 함 */
+  .hidden-message::selection {
+    background: rgba(255, 215, 0, 0.3); 
+    color: #ffffff;
   }
-  
-  #stars:after {
-    content: " ";
-    position: absolute;
-    top: 2000px;
-    width: 1px;
-    height: 1px;
-    background: transparent;
+  /* 파이어폭스 브라우저 대응 */
+  .hidden-message::-moz-selection {
+    background: rgba(255, 215, 0, 0.3);
+    color: #ffffff;
   }
+
+  /* 별 배경 생략 (기존과 동일) */
+  #stars { width: 1px; height: 1px; background: transparent; animation: animStar 50s linear infinite; }
+  #stars:after { content: " "; position: absolute; top: 2000px; width: 1px; height: 1px; background: transparent; }
 
   .container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;
   }
 
   .message-box {
-    text-align: center;
-    line-height: 2.4;
-    font-size: 1.4rem;
-    padding: 40px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 20px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(3px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    max-width: 90%;
-    width: 600px;
-    opacity: 0;
-    animation: fadeInUp 2s ease-out forwards;
-    animation-delay: 0.5s;
+    text-align: center; line-height: 2.4; font-size: 1.4rem; padding: 40px;
+    background: rgba(255, 255, 255, 0.03); border-radius: 20px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2); backdrop-filter: blur(3px);
+    border: 1px solid rgba(255, 255, 255, 0.05); max-width: 90%; width: 600px;
+    opacity: 0; animation: fadeInUp 2s ease-out forwards; animation-delay: 0.5s;
   }
 
-  .line {
-    display: inline-block;
-    opacity: 0;
-    transform: translateY(20px);
+  /* [추가] 히든 메시지 기본 스타일 */
+  .hidden-message {
+    margin-top: 30px;
+    font-size: 0.9rem;
+    color: rgba(9, 10, 15, 0); /* 배경색과 거의 똑같이 해서 안 보이게 함 */
+    transition: color 0.5s;
+    user-select: all; /* 드래그가 잘 되도록 설정 */
+    cursor: text;
   }
 
+  /* 기존 애니메이션들 생략... */
+  .line { display: inline-block; opacity: 0; transform: translateY(20px); }
   .line:nth-of-type(1) { animation: textFadeIn 1.5s ease-out forwards 1.2s; }
   .line:nth-of-type(2) { animation: textFadeIn 1.5s ease-out forwards 3.0s; }
   .line:nth-of-type(3) { animation: textFadeIn 1.5s ease-out forwards 4.8s; }
   .line:nth-of-type(4) { animation: textFadeIn 1.5s ease-out forwards 6.5s; color: #ffebd2; }
-
-  .highlight {
-    color: #ffd700;
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
-    font-weight: bold;
-  }
-  
-  /* 클릭 안내 문구 */
-  .click-hint {
-    position: absolute;
-    bottom: 20px;
-    font-size: 0.8rem;
-    color: rgba(255,255,255,0.3);
-    animation: blink 3s infinite;
-  }
-
-  @keyframes animStar {
-    from { transform: translateY(0px); }
-    to { transform: translateY(-2000px); }
-  }
-
-  @keyframes fadeInUp {
-    to { opacity: 1; }
-  }
-
-  @keyframes textFadeIn {
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  @keyframes blink {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.7; }
-  }
-
-  @media (max-width: 768px) {
-    .message-box {
-      font-size: 1.1rem;
-      padding: 25px;
-      line-height: 2.0;
-    }
-  }
+  .highlight { color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.4); font-weight: bold; }
+  .click-hint { position: absolute; bottom: 20px; font-size: 0.8rem; color: rgba(255,255,255,0.3); animation: blink 3s infinite; }
+  @keyframes animStar { from { transform: translateY(0px); } to { transform: translateY(-2000px); } }
+  @keyframes fadeInUp { to { opacity: 1; } }
+  @keyframes textFadeIn { to { opacity: 1; transform: translateY(0); } }
+  @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.7; } }
+  @media (max-width: 768px) { .message-box { font-size: 1.1rem; padding: 25px; line-height: 2.0; } }
 </style>
 </head>
 <body>
 
   <div id="stars"></div>
 
-  <!-- 유튜브 음악 (화면에 보이지 않게 숨김) -->
   <div style="position:fixed; left:-9999px;">
-    <!-- Diamond Eyes - Everything -->
     <iframe id="bgm" width="560" height="315" 
-      src="https://www.youtube.com/embed/_R2nZa8grno?enablejsapi=1&controls=0&loop=1&playlist=_R2nZa8grno" 
+      src="https://www.youtube.com/embed/S_8S7vGisUE?si=Fw1r8N04jT7VIszB" 
       title="YouTube video player" frameborder="0" 
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
       allowfullscreen>
@@ -139,12 +91,18 @@
       <span class="line">그리고 또 하루, 또 하루...<br>그렇게 버텨낸 시간들이 모이면,</span><br><br>
       
       <span class="line">언젠가 다시 웃을 이유 하나쯤은<br>반드시 당신을 찾아올 테니까요.</span>
+
+      <!-- [추가] 히든 메시지 영역 -->
+      <div class="hidden-message">
+        사실 당신은 생각보다 훨씬 더 소중한 사람이에요. 이 글자를 찾아낸 것처럼 당신의 행복도 꼭 찾아올 거예요.
+      </div>
     </div>
-    <div class="click-hint">화면을 클릭하면 음악이 흐릅니다</div>
+    
+    <div class="click-hint">화면을 클릭하면 음악이 흐릅니다.</div>
   </div>
 
 <script>
-  // 별 생성 스크립트
+  // 별 생성 및 음악 재생 스크립트는 기존과 동일
   const createStars = () => {
     const styleElem = document.createElement('style');
     let boxShadowValue = '';
@@ -166,15 +124,12 @@
     createStars();
   });
 
-  // 음악 재생 스크립트 (크롬 정책 대응)
   function playMusic() {
     var iframe = document.getElementById("bgm");
     var src = iframe.src;
-    // 이미 재생 중이면 리로드 하지 않음
     if(src.indexOf("autoplay=1") === -1) {
       iframe.src = src + "&autoplay=1";
     }
-    // 힌트 문구 제거
     document.querySelector('.click-hint').style.display = 'none';
   }
 </script>
