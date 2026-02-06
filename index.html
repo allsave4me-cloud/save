@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘의 희망 한 스푼</title>
+    <!-- 구글 폰트: 나눔명조 & 고운돋움 -->
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Nanum+Myeongjo:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* 기본 스타일 초기화 및 배경 설정 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Gowun Dodum', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* 희망적인 느낌의 파스텔 그라데이션 배경 */
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            background-size: 200% 200%;
+            animation: gradientMove 15s ease infinite;
+            color: #333;
+        }
+
+        /* 배경이 은은하게 움직이는 애니메이션 */
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 메인 카드 박스 디자인 */
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* 제목 스타일 */
+        h1 {
+            font-family: 'Nanum Myeongjo', serif;
+            font-size: 1.5rem;
+            color: #555;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+
+        /* 명언 텍스트 영역 */
+        .quote-box {
+            min-height: 120px;
+            display: flex;
+            justify-content:
