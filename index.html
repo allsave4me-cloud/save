@@ -8,24 +8,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-html, body {
-  height: 100%;
-  margin: 0;
-  overflow: hidden;
-  font-family: 'Nanum Myeongjo', serif;
-  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
-  color: #fff;
-  cursor: pointer;
+html,body{
+  height:100%;
+  margin:0;
+  overflow:hidden;
+  font-family:'Nanum Myeongjo', serif;
+  background: radial-gradient(ellipse at bottom,#1b2735 0%,#090a0f 100%);
+  color:#fff;
 }
 
 /* 별 */
-#stars {
+#stars{
   width:1px;
   height:1px;
   background:transparent;
-  animation: animStar 50s linear infinite;
+  animation:animStar 50s linear infinite;
 }
-#stars:after {
+#stars:after{
   content:" ";
   position:absolute;
   top:2000px;
@@ -33,8 +32,8 @@ html, body {
   height:1px;
 }
 
-/* 레이아웃 */
-.container {
+/* 메인 화면 */
+.container{
   position:absolute;
   top:0;
   left:0;
@@ -47,24 +46,22 @@ html, body {
   z-index:10;
 }
 
-.message-box {
+.message-box{
   text-align:center;
   line-height:2.4;
   font-size:1.4rem;
   padding:40px;
-  background: rgba(255,255,255,0.03);
+  background:rgba(255,255,255,0.03);
   border-radius:20px;
-  box-shadow:0 4px 30px rgba(0,0,0,0.2);
-  backdrop-filter: blur(3px);
+  backdrop-filter:blur(3px);
   border:1px solid rgba(255,255,255,0.05);
   max-width:90%;
   width:600px;
   opacity:0;
-  animation: fadeInUp 2s ease-out forwards;
-  animation-delay:0.5s;
+  animation:fadeInUp 2s forwards .5s;
 }
 
-.line {
+.line{
   display:inline-block;
   opacity:0;
   transform:translateY(20px);
@@ -76,39 +73,50 @@ html, body {
 
 .highlight{
   color:#ffd700;
-  text-shadow:0 0 10px rgba(255,215,0,0.4);
-  font-weight:bold;
+  text-shadow:0 0 10px rgba(255,215,0,.4);
 }
 
-/* 메모 */
-#videoMemo{
-  margin-top:20px;
-  font-size:0.9rem;
-  opacity:0.7;
+/* > 버튼 */
+.next-btn{
+  margin-top:25px;
+  font-size:2rem;
+  opacity:.5;
+  cursor:pointer;
 }
 
-/* 클릭 안내 */
-.click-hint{
+/* 영상 화면 */
+#videoScreen{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:#000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  z-index:20;
+}
+
+.back-btn{
   position:absolute;
-  bottom:20px;
-  font-size:0.8rem;
-  color:rgba(255,255,255,0.3);
-  animation:blink 3s infinite;
+  top:20px;
+  left:20px;
+  font-size:1.5rem;
+  cursor:pointer;
+  opacity:.6;
+}
+
+#videoMemo{
+  margin-top:15px;
+  opacity:.7;
 }
 
 /* 애니메이션 */
 @keyframes animStar{from{transform:translateY(0)}to{transform:translateY(-2000px)}}
 @keyframes fadeInUp{to{opacity:1}}
 @keyframes textFadeIn{to{opacity:1;transform:translateY(0)}}
-@keyframes blink{0%,100%{opacity:0.3}50%{opacity:0.7}}
-
-@media(max-width:768px){
-  .message-box{
-    font-size:1.1rem;
-    padding:25px;
-    line-height:2.0;
-  }
-}
 </style>
 </head>
 
@@ -116,19 +124,9 @@ html, body {
 
 <div id="stars"></div>
 
-<!-- 숨겨진 영상 플레이어 -->
-<div style="position:fixed; left:-9999px;">
-  <iframe id="bgm"
-    width="560"
-    height="315"
-    src=""
-    frameborder="0"
-    allow="autoplay; encrypted-media"
-    allowfullscreen>
-  </iframe>
-</div>
+<!-- 메인 화면 -->
+<div class="container">
 
-<div class="container" onclick="playMusic()">
   <div class="message-box">
 
     <span class="line">당신이 오늘 마치려던 그 일,</span><br>
@@ -140,44 +138,61 @@ html, body {
     <span class="line">언젠가 다시 웃을 이유 하나쯤은<br>
     반드시 당신을 찾아올 테니까요.</span>
 
-    <div id="videoMemo"></div>
+    <div class="next-btn" onclick="showVideo()"> &gt; </div>
 
   </div>
+</div>
 
-  <div class="click-hint">화면을 클릭하면 음악이 흐릅니다</div>
+<!-- 영상 화면 -->
+<div id="videoScreen">
+
+  <iframe id="videoPlayer"
+    width="80%"
+    height="60%"
+    frameborder="0"
+    allow="autoplay; encrypted-media"
+    allowfullscreen>
+  </iframe>
+
+  <div id="videoMemo"></div>
+
+  <div class="back-btn" onclick="showMain()">←</div>
+
 </div>
 
 <script>
 
-/* ⭐ 영상 목록 (여기 계속 추가하면 됨) */
-const videos = [
-  { id:"ekKnNTpm3Cs", memo:"2. 매드클라운 (Mad Clown) - 죽지마 (Official Video) }
+/* ⭐ 영상 목록 (여기 추가) */
+const videos=[
+ {id:"ekKnNTpm3Cs", memo:"죽지마"}
 ];
 
-/* 랜덤 재생 */
-function playRandomVideo(){
-  const v = videos[Math.floor(Math.random()*videos.length)];
+/* 화면 전환 */
+function showVideo(){
+  const v=videos[Math.floor(Math.random()*videos.length)];
 
-  document.getElementById("bgm").src =
-    `https://www.youtube.com/embed/${v.id}?autoplay=1&loop=1&playlist=${v.id}`;
+  document.querySelector(".container").style.display="none";
+  document.getElementById("videoScreen").style.display="flex";
 
-  document.getElementById("videoMemo").innerText = v.memo;
+  document.getElementById("videoPlayer").src=
+    `https://www.youtube.com/embed/${v.id}?autoplay=1`;
+
+  document.getElementById("videoMemo").innerText=v.memo;
 }
 
-function playMusic(){
-  playRandomVideo();
-  document.querySelector('.click-hint').style.display='none';
+function showMain(){
+  document.getElementById("videoScreen").style.display="none";
+  document.querySelector(".container").style.display="flex";
+  document.getElementById("videoPlayer").src="";
 }
 
-/* ⭐ 별 생성 (안전 버전) */
+/* 별 생성 */
 let starStyle;
-
 function createStars(){
   if(starStyle) starStyle.remove();
+  starStyle=document.createElement("style");
 
-  starStyle=document.createElement('style');
-
-  let boxShadow='';
+  let boxShadow="";
   for(let i=0;i<400;i++){
     const x=Math.random()*window.innerWidth;
     const y=Math.random()*2000;
@@ -189,10 +204,10 @@ function createStars(){
   starStyle.innerHTML=`#stars,#stars:after{box-shadow:${boxShadow};}`;
   document.head.appendChild(starStyle);
 }
-
 createStars();
-window.addEventListener('resize', createStars);
+window.addEventListener("resize",createStars);
 
 </script>
+
 </body>
 </html>
