@@ -52,16 +52,22 @@
   }
 
   .moon{
-    position:absolute;
+    position:fixed;
     top:11%;
     right:16%;
     width:64px;
     height:64px;
+    border:0;
+    padding:0;
     border-radius:50%;
     background:#f3ead2;
     opacity:.32;
     box-shadow:0 0 60px 18px rgba(255,240,210,.14);
+    cursor:pointer;
+    z-index:8;
   }
+  .moon:hover{opacity:.5;}
+  .moon:focus-visible{outline:1px solid rgba(255,235,210,.45);}
 
   .horizon{
     position:absolute;
@@ -284,31 +290,57 @@
     100%{opacity:0;transform:translateY(-32vh);}
   }
 
-  .guest-open{
-    position:fixed;
-    left:20px;
-    bottom:20px;
-    font-size:.85rem;
-    opacity:0;
-    z-index:9;
-    cursor:pointer;
-    user-select:none;
-    transition:opacity 2s ease;
-  }
-  .guest-open.show{opacity:.62;}
-  .guest-open:hover{opacity:.95;}
-
   .guest-head{
     text-align:center;
     font-size:.95rem;
     opacity:.7;
-    margin-bottom:28px;
+    margin-bottom:18px;
     line-height:1.8;
+  }
+
+  .guest-form{
+    width:min(520px, 90vw);
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-bottom:18px;
+  }
+  .guest-form input,
+  .guest-form textarea{
+    width:100%;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.1);
+    color:var(--warm);
+    font-family:inherit;
+    font-size:.95rem;
+    border-radius:10px;
+    padding:10px 12px;
+    resize:none;
+    outline:none;
+  }
+  .guest-form button{
+    align-self:flex-end;
+    background:transparent;
+    border:1px solid rgba(255,235,210,.28);
+    color:var(--warm);
+    font-family:inherit;
+    font-size:.88rem;
+    padding:6px 14px;
+    border-radius:999px;
+    cursor:pointer;
+    opacity:.8;
+  }
+  .guest-form button:hover{opacity:1;}
+  .guest-hint{
+    min-height:1.2em;
+    margin:0;
+    font-size:.8rem;
+    opacity:.65;
   }
 
   .guest-list{
     width:min(520px, 90vw);
-    max-height:68vh;
+    max-height:48vh;
     overflow:auto;
     text-align:left;
     padding:0 8px 40px;
@@ -327,6 +359,11 @@
     letter-spacing:.06em;
     opacity:.45;
     margin-bottom:.3em;
+  }
+  .guest-item .who{
+    margin-left:.45em;
+    font-size:.75rem;
+    opacity:.4;
   }
   .guest-item p{
     margin:0;
@@ -382,7 +419,6 @@
 <body>
 
 <div class="sky" aria-hidden="true">
-  <div class="moon"></div>
   <div id="stars-a" class="stars"></div>
   <div id="stars-b" class="stars"></div>
   <div id="stars-c" class="stars"></div>
@@ -426,13 +462,20 @@
   <div class="float-comments" id="floatComments" aria-hidden="true"></div>
 </div>
 
+<button type="button" class="moon" id="moonBtn" aria-label="방명록" onclick="toggleGuest()"></button>
+
 <div id="guestScreen" class="screen">
   <div class="nav-btn back-btn" role="button" tabindex="0" aria-label="돌아가기" onclick="showMain()">←</div>
   <div class="guest-head">하루에 한두 줄씩, 남겨지고 있습니다.</div>
+  <form class="guest-form" id="guestForm">
+    <input id="guestName" maxlength="12" autocomplete="nickname" placeholder="이름 (비워도 됩니다)">
+    <textarea id="guestBody" maxlength="80" rows="2" placeholder="좋은 말 한 줄"></textarea>
+    <button type="submit">남기기</button>
+    <p class="guest-hint" id="guestHint"></p>
+  </form>
   <div class="guest-list" id="guestList"></div>
 </div>
 
-<div class="guest-open" id="guestBtn" role="button" tabindex="0" onclick="showGuest()">남겨진 말</div>
 <div class="corner-note" id="sign">
   고마워, 그리고 감사해 미안해 또 보자
 </div>
@@ -454,6 +497,7 @@ const videos = [
 ];
 
 const DAYS_KEY = "svae-days";
+const GUEST_KEY = "svae-guest-notes";
 const BOOK_START = "2026-02-06";
 const BOOK_DAYS = 21;
 let WORDS = ["살기 좋다. 오늘은 특히.", "오늘 하루만 더.", "또 보자, 내일."];
@@ -563,17 +607,87 @@ function buildBook(){
 function renderBook(){
   const box = document.getElementById("guestList");
   box.innerHTML = "";
-  buildBook().forEach(n => {
+  const add = (n, mine) => {
     const art = document.createElement("article");
-    art.className = "guest-item" + (n.today ? " today" : "");
+    art.className = "guest-item" + (n.today || mine ? " today" : "");
     const time = document.createElement("time");
     time.textContent = n.when;
+    if(n.who){
+      const who = document.createElement("span");
+      who.className = "who";
+      who.textContent = n.who;
+      time.appendChild(who);
+    }
     const p = document.createElement("p");
     p.textContent = n.text;
     art.appendChild(time);
     art.appendChild(p);
     box.appendChild(art);
-  });
+  };
+  loadGuests().forEach(n => add(n, true));
+  buildBook().forEach(n => add(n, false));
+}
+
+function loadGuests(){
+  try{
+    const a = JSON.parse(localStorage.getItem(GUEST_KEY) || "[]");
+    return Array.isArray(a) ? a : [];
+  }catch(e){ return []; }
+}
+
+function saveGuests(list){
+  try{ localStorage.setItem(GUEST_KEY, JSON.stringify(list.slice(0, 200))); }
+  catch(e){}
+}
+
+function normBad(s){
+  return String(s).toLowerCase().replace(/[\s._*\-·'"“”]/g,"");
+}
+
+function isBlocked(text){
+  const n = normBad(text);
+  const bad = [
+    "시발","씨발","씨팔","시팔","ㅆㅂ","ㅅㅂ","tlqkf","tlqkf",
+    "병신","븅신","지랄","wlfkf","qudtls","좆","좇","ㅈ같",
+    "꺼져","닥쳐","개새","개소리","미친놈","미친년",
+    "니애미","느금마","염병","존나","졸라",
+    "fuck","shit","bitch","asshole",
+    "죽어라","뒤져","자살해","같이죽","함께죽"
+  ];
+  return bad.some(w => n.includes(normBad(w)));
+}
+
+function hasLink(s){
+  return /https?:\/\/|www\.|\.com\b|\.kr\b|bit\.ly/i.test(s);
+}
+
+function nowStamp(){
+  const d = new Date();
+  return todayKey().replace(/-/g,".") + "  " +
+    String(d.getHours()).padStart(2,"0") + ":" +
+    String(d.getMinutes()).padStart(2,"0");
+}
+
+function submitGuest(e){
+  e.preventDefault();
+  const hint = document.getElementById("guestHint");
+  const who = document.getElementById("guestName").value.trim().slice(0,12);
+  const body = document.getElementById("guestBody").value.trim();
+  hint.textContent = "";
+  if(body.length < 2){ hint.textContent = "조금 더 적어 주세요."; return; }
+  if(isBlocked(body) || isBlocked(who)){ hint.textContent = "그런 말은 남길 수 없어요."; return; }
+  if(hasLink(body)){ hint.textContent = "주소는 남길 수 없어요."; return; }
+  const all = loadGuests();
+  const today = todayKey();
+  if(all.filter(x => x.day === today).length >= 2){
+    hint.textContent = "오늘은 두 줄이면 충분해요.";
+    return;
+  }
+  if(all.some(x => x.text === body)){ hint.textContent = "같은 말이 이미 있어요."; return; }
+  all.unshift({who: who || "익명", text: body, day: today, when: nowStamp()});
+  saveGuests(all);
+  document.getElementById("guestBody").value = "";
+  renderBook();
 }
 
 function parseYoutube(input){
@@ -675,6 +789,11 @@ function showGuest(){
   document.getElementById("videoPlayer").src = "";
 }
 
+function toggleGuest(){
+  if(document.getElementById("guestScreen").classList.contains("on")) showMain();
+  else showGuest();
+}
+
 function showMain(){
   stopSideComments();
   hideScreens();
@@ -740,7 +859,6 @@ if(days.length > 1){
 }
 setTimeout(() => {
   document.getElementById("sign").classList.add("show");
-  document.getElementById("guestBtn").classList.add("show");
 }, quiet ? 0 : 10400);
 
 if(!quiet){
@@ -749,9 +867,9 @@ if(!quiet){
 }
 
 bindKeys(document.getElementById("nextBtn"), showVideo);
-bindKeys(document.getElementById("guestBtn"), showGuest);
 document.querySelectorAll(".back-btn").forEach(el => bindKeys(el, showMain));
 bindKeys(document.querySelector(".next-video-btn"), nextVideo);
+document.getElementById("guestForm").addEventListener("submit", submitGuest);
 </script>
 </body>
 </html>
