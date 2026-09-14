@@ -208,22 +208,25 @@
 
   #videoScreen{
     background:rgba(0,0,0,.35);
+    justify-content:flex-start;
+    align-items:stretch;
   }
 
   .video-stage{
-    width:min(880px, 90vw);
+    width:100%;
+    flex-shrink:0;
     display:flex;
     flex-direction:column;
     align-items:center;
   }
 
   .frame{
-    width:100%;
+    width:min(100%, calc(52vh * 16 / 9));
     aspect-ratio:16/9;
     background:#000;
-    border-radius:12px;
     overflow:hidden;
-    border:1px solid rgba(255,255,255,.08);
+    border:0;
+    border-bottom:1px solid rgba(255,255,255,.08);
   }
 
   #videoPlayer{
@@ -233,11 +236,11 @@
   }
 
   #videoMemo{
-    margin-top:18px;
-    font-size:1.15rem;
+    margin-top:12px;
+    font-size:1.05rem;
     letter-spacing:.04em;
     color:var(--warm);
-    min-height:1.6em;
+    min-height:1.4em;
     text-align:center;
     opacity:.85;
   }
@@ -253,7 +256,84 @@
   }
   .nav-btn:hover{opacity:1;}
   .back-btn{top:18px;left:16px;}
-  .next-video-btn{right:22px;bottom:22px;font-size:2rem;}
+  .next-video-btn{right:22px;bottom:22px;font-size:2rem;z-index:3;}
+
+  .float-comments{
+    position:relative;
+    flex:1;
+    width:100%;
+    min-height:0;
+    pointer-events:none;
+    overflow:hidden;
+    z-index:2;
+  }
+  .float-comment{
+    position:absolute;
+    max-width:240px;
+    opacity:0;
+    font-size:.88rem;
+    line-height:1.65;
+    color:rgba(255,235,210,.5);
+    text-shadow:0 2px 16px rgba(0,0,0,.75);
+    animation:commentRise 8.5s ease-out forwards;
+  }
+
+  @keyframes commentRise{
+    0%{opacity:0;transform:translateY(8px);}
+    12%{opacity:.5;}
+    70%{opacity:.36;}
+    100%{opacity:0;transform:translateY(-32vh);}
+  }
+
+  .guest-open{
+    position:fixed;
+    left:20px;
+    bottom:20px;
+    font-size:.85rem;
+    opacity:0;
+    z-index:9;
+    cursor:pointer;
+    user-select:none;
+    transition:opacity 2s ease;
+  }
+  .guest-open.show{opacity:.62;}
+  .guest-open:hover{opacity:.95;}
+
+  .guest-head{
+    text-align:center;
+    font-size:.95rem;
+    opacity:.7;
+    margin-bottom:28px;
+    line-height:1.8;
+  }
+
+  .guest-list{
+    width:min(520px, 90vw);
+    max-height:68vh;
+    overflow:auto;
+    text-align:left;
+    padding:0 8px 40px;
+  }
+  .guest-item{
+    margin:0 0 1.55em;
+    opacity:.78;
+  }
+  .guest-item.today{
+    opacity:1;
+    color:var(--warm);
+  }
+  .guest-item time{
+    display:block;
+    font-size:.75rem;
+    letter-spacing:.06em;
+    opacity:.45;
+    margin-bottom:.3em;
+  }
+  .guest-item p{
+    margin:0;
+    line-height:1.85;
+    font-size:1.02rem;
+  }
 
   .corner-note{
     position:fixed;
@@ -288,13 +368,15 @@
     .message-box{font-size:1.12rem;line-height:2.2;padding:12px 8px;}
     .moon{width:48px;height:48px;top:10%;right:10%;}
     .nav-btn{font-size:1.35rem;}
+    .float-comment{font-size:.78rem;max-width:46vw;}
   }
 
   @media (prefers-reduced-motion:reduce){
-    #stars-a,#stars-b,#stars-c,.shooting,.next-btn.show{animation:none;}
+    #stars-a,#stars-b,#stars-c,.shooting,.next-btn.show,.float-comment{animation:none;}
     .line{opacity:1;transform:none;}
     .letter-ready .line{animation:none;}
     .screen{transition:none;}
+    .float-comment{opacity:.45;transform:none;}
   }
 </style>
 </head>
@@ -342,26 +424,90 @@
   </div>
 
   <div class="nav-btn next-video-btn" role="button" tabindex="0" aria-label="다음 노래" onclick="nextVideo()">&gt;</div>
+  <div class="float-comments" id="floatComments" aria-hidden="true"></div>
 </div>
 
+<div id="guestScreen" class="screen">
+  <div class="nav-btn back-btn" role="button" tabindex="0" aria-label="돌아가기" onclick="showMain()">←</div>
+  <div class="guest-head">하루에 한두 줄씩, 남겨지고 있습니다.</div>
+  <div class="guest-list" id="guestList"></div>
+</div>
+
+<div class="guest-open" id="guestBtn" role="button" tabindex="0" onclick="showGuest()">남겨진 말</div>
 <div class="corner-note" id="sign">
   고마워, 그리고 감사해 미안해 또 보자
 </div>
 
 <script>
+/* 유튜브 주소 그대로 붙여넣으면 됩니다. 줄을 늘리면 영상이 늘어납니다. */
 const videos = [
-  {id:"ekKnNTpm3Cs", memo:"죽지마"},
-  {id:"RohZ89_w93o", memo:"실패라고 생각하지마"},
-  {id:"cS-IiArGmcU", memo:"가족을 생각해"},
-  {id:"Rgw5Oaq0M0s", memo:"성숙"},
-  {id:"rGRC_Nf8fww", memo:"F.L.Y"},
-  {id:"F1vNK4jSYr0", memo:"힘내 쨔샤"},
-  {id:"C6st9z_iaao", memo:"나도 이미 알고 있어"}
+  {url:"https://www.youtube.com/watch?v=ekKnNTpm3Cs", memo:"죽지마"},
+  {url:"https://www.youtube.com/watch?v=RohZ89_w93o", memo:"실패라고 생각하지마"},
+  {url:"https://www.youtube.com/watch?v=cS-IiArGmcU", memo:"가족을 생각해"},
+  {url:"https://www.youtube.com/watch?v=Rgw5Oaq0M0s", memo:"성숙"},
+  {url:"https://www.youtube.com/watch?v=rGRC_Nf8fww", memo:"F.L.Y"},
+  {url:"https://www.youtube.com/watch?v=F1vNK4jSYr0", memo:"힘내 쨔샤"},
+  {url:"https://www.youtube.com/watch?v=C6st9z_iaao", memo:"나도 이미 알고 있어"}
 ];
 
 const DAYS_KEY = "svae-days";
+const BOOK_START = "2026-02-06";
+const BOOK_DAYS = 21;
+const WORDS = [
+  "살기 좋다. 오늘은 특히.",
+  "따뜻한 물 한 잔도 괜찮다.",
+  "아직 남은 하루가 있다.",
+  "바람 냄새가 나쁘지 않다.",
+  "밥은 먹고 자자.",
+  "햇빛이 창까지 왔다.",
+  "이 밤도 지나간다.",
+  "살아 있어서, 다행이다.",
+  "천천히여도 된다.",
+  "오늘 하루만 더.",
+  "누가 기다릴 수도 있다.",
+  "작은 웃음이 남았다.",
+  "발밑이 단단하다.",
+  "괜찮아질 거라는 말은 아직 이르고, 그래도 숨은 쉬어진다.",
+  "하늘이 열려 있다.",
+  "살 만하다. 조금.",
+  "손을 따뜻하게 하자.",
+  "내일 아침이 온다.",
+  "꽃이 아니어도, 풀은 자란다.",
+  "울어도 된다. 그다음에도 하루다.",
+  "창문을 열면 공기가 바뀐다.",
+  "아직 좋아하는 게 있다.",
+  "걸어 나갈 수 있다.",
+  "별은 그냥 떠 있다. 그것도 좋다.",
+  "살기 좋다. 굳이 이유를 대지 않아도.",
+  "이불 속이 안전하다.",
+  "누군가의 하루가 여기 남겨졌다.",
+  "물 한 모금, 그다음 한 모금.",
+  "실패해도 아침은 온다.",
+  "오늘은 그냥 살아 있자.",
+  "가벼운 구름이다.",
+  "마음이 무거워도 몸은 여기 있다.",
+  "다시 웃을 이유가 오고 있다.",
+  "천천히, 살자.",
+  "밤공기가 부드럽다.",
+  "아직 늦지 않았다.",
+  "한 끼면 충분하다.",
+  "살아 있는 쪽이 맞다.",
+  "좋은 말이 없어도, 하루는 남는다.",
+  "여기까지 온 것만으로도.",
+  "발자국이 이어진다.",
+  "잠깐 멈춰도 삶은 기다린다.",
+  "따뜻한 쪽이 있다.",
+  "오늘은 살기로 했다.",
+  "하늘이 아직 넓다.",
+  "숨이 고르다. 그것부터.",
+  "살기 참 좋다.",
+  "또 보자, 내일."
+];
+
 let currentIndex = -1;
 let starStyle;
+let commentTimer = null;
+let commentIdx = Math.floor(Math.random() * WORDS.length);
 
 function todayKey(){
   const d = new Date();
@@ -401,6 +547,89 @@ function renderDays(days){
   }
 }
 
+function hashStr(s){
+  let h = 2166136261;
+  for(let i=0;i<s.length;i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
+  return h >>> 0;
+}
+
+function notesForDay(key){
+  const h = hashStr(key + ":svae-book");
+  const count = (h % 2) + 1;
+  const seen = new Set();
+  const out = [];
+  for(let i=0;i<count;i++){
+    let idx = (h + i * 97) % WORDS.length;
+    if(seen.has(idx)) idx = (idx + 1) % WORDS.length;
+    seen.add(idx);
+    const mins = 7 * 60 + ((h >>> (i * 7)) % (16 * 60));
+    const hh = Math.floor(mins / 60);
+    const mm = mins % 60;
+    out.push({
+      when: `${key.slice(0,4)}.${key.slice(5,7)}.${key.slice(8,10)}  ${String(hh).padStart(2,"0")}:${String(mm).padStart(2,"0")}`,
+      text: WORDS[idx],
+      today: key === todayKey()
+    });
+  }
+  out.sort((a,b) => a.when < b.when ? 1 : -1);
+  return out;
+}
+
+function buildBook(){
+  const today = todayKey();
+  const [ty,tm,td] = today.split("-").map(Number);
+  const end = new Date(ty, tm-1, td);
+  const [sy,sm,sd] = BOOK_START.split("-").map(Number);
+  const start = new Date(sy, sm-1, sd);
+  let from = new Date(end);
+  from.setDate(from.getDate() - (BOOK_DAYS - 1));
+  if(from < start) from = start;
+  const items = [];
+  for(let d = new Date(end); d >= from; d.setDate(d.getDate()-1)){
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    items.push(...notesForDay(key));
+  }
+  return items;
+}
+
+function renderBook(){
+  const box = document.getElementById("guestList");
+  box.innerHTML = "";
+  buildBook().forEach(n => {
+    const art = document.createElement("article");
+    art.className = "guest-item" + (n.today ? " today" : "");
+    const time = document.createElement("time");
+    time.textContent = n.when;
+    const p = document.createElement("p");
+    p.textContent = n.text;
+    art.appendChild(time);
+    art.appendChild(p);
+    box.appendChild(art);
+  });
+}
+
+function parseYoutube(input){
+  const raw = String(input || "").trim();
+  const out = {id:"", list:""};
+  if(!raw) return out;
+  if(/^[a-zA-Z0-9_-]{11}$/.test(raw)){
+    out.id = raw;
+    return out;
+  }
+  try{
+    const u = new URL(raw);
+    out.list = u.searchParams.get("list") || "";
+    if(u.searchParams.get("v")) out.id = u.searchParams.get("v");
+    else {
+      const parts = u.pathname.split("/").filter(Boolean);
+      if(u.hostname.replace(/^www\./,"") === "youtu.be") out.id = parts[0] || "";
+      else if(parts[0]==="embed" && parts[1] && parts[1]!=="videoseries") out.id = parts[1];
+      else if(parts[0]==="shorts" || parts[0]==="live") out.id = parts[1] || "";
+    }
+  }catch(e){}
+  return out;
+}
+
 function pickRandom(){
   let i;
   do{
@@ -411,23 +640,76 @@ function pickRandom(){
 }
 
 function play(v){
+  const p = parseYoutube(v.url || v.id);
+  const q = new URLSearchParams({autoplay:"1", rel:"0", modestbranding:"1"});
+  let path = "";
+  if(p.id){
+    path = p.id;
+    if(p.list) q.set("list", p.list);
+  }else if(p.list){
+    path = "videoseries";
+    q.set("list", p.list);
+  }else return;
   document.getElementById("videoPlayer").src =
-    `https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0&modestbranding=1`;
-  document.getElementById("videoMemo").textContent = v.memo;
+    `https://www.youtube-nocookie.com/embed/${path}?${q}`;
+  document.getElementById("videoMemo").textContent = v.memo || "";
+}
+
+function hideScreens(){
+  document.getElementById("mainScreen").classList.remove("on");
+  document.getElementById("videoScreen").classList.remove("on");
+  document.getElementById("guestScreen").classList.remove("on");
+}
+
+function spawnComment(){
+  const box = document.getElementById("floatComments");
+  if(!box) return;
+  const el = document.createElement("div");
+  el.className = "float-comment";
+  el.textContent = WORDS[commentIdx % WORDS.length];
+  el.style.left = (6 + Math.random()*72) + "%";
+  el.style.bottom = (4 + Math.random()*28) + "%";
+  el.style.animationDuration = (6.8 + Math.random()*3) + "s";
+  commentIdx++;
+  box.appendChild(el);
+  setTimeout(() => el.remove(), 11000);
+}
+
+function startSideComments(){
+  stopSideComments();
+  spawnComment();
+  commentTimer = setInterval(spawnComment, 1600);
+}
+
+function stopSideComments(){
+  clearInterval(commentTimer);
+  commentTimer = null;
+  const box = document.getElementById("floatComments");
+  if(box) box.innerHTML = "";
 }
 
 function showVideo(){
-  document.getElementById("mainScreen").classList.remove("on");
+  hideScreens();
   document.getElementById("videoScreen").classList.add("on");
   play(pickRandom());
+  startSideComments();
 }
 
 function nextVideo(){
   play(pickRandom());
 }
 
+function showGuest(){
+  stopSideComments();
+  hideScreens();
+  document.getElementById("guestScreen").classList.add("on");
+  renderBook();
+  document.getElementById("videoPlayer").src = "";
+}
+
 function showMain(){
-  document.getElementById("videoScreen").classList.remove("on");
+  stopSideComments();
+  hideScreens();
   document.getElementById("mainScreen").classList.add("on");
   document.getElementById("videoPlayer").src = "";
 }
@@ -488,7 +770,10 @@ setTimeout(() => document.getElementById("nextBtn").classList.add("show"), later
 if(days.length > 1){
   setTimeout(() => document.getElementById("dayMark").classList.add("show"), quiet ? 0 : 9000);
 }
-setTimeout(() => document.getElementById("sign").classList.add("show"), quiet ? 0 : 10400);
+setTimeout(() => {
+  document.getElementById("sign").classList.add("show");
+  document.getElementById("guestBtn").classList.add("show");
+}, quiet ? 0 : 10400);
 
 if(!quiet){
   setTimeout(shootOnce, 3500);
@@ -496,7 +781,8 @@ if(!quiet){
 }
 
 bindKeys(document.getElementById("nextBtn"), showVideo);
-bindKeys(document.querySelector(".back-btn"), showMain);
+bindKeys(document.getElementById("guestBtn"), showGuest);
+document.querySelectorAll(".back-btn").forEach(el => bindKeys(el, showMain));
 bindKeys(document.querySelector(".next-video-btn"), nextVideo);
 </script>
 </body>
