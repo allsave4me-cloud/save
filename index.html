@@ -208,25 +208,23 @@
 
   #videoScreen{
     background:rgba(0,0,0,.35);
-    justify-content:flex-start;
-    align-items:stretch;
   }
 
   .video-stage{
-    width:100%;
-    flex-shrink:0;
+    width:min(880px, 90vw);
     display:flex;
     flex-direction:column;
     align-items:center;
+    z-index:1;
   }
 
   .frame{
-    width:min(100%, calc(52vh * 16 / 9));
+    width:100%;
     aspect-ratio:16/9;
     background:#000;
+    border-radius:12px;
     overflow:hidden;
-    border:0;
-    border-bottom:1px solid rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.08);
   }
 
   #videoPlayer{
@@ -236,8 +234,8 @@
   }
 
   #videoMemo{
-    margin-top:12px;
-    font-size:1.05rem;
+    margin-top:16px;
+    font-size:1.1rem;
     letter-spacing:.04em;
     color:var(--warm);
     min-height:1.4em;
@@ -259,10 +257,11 @@
   .next-video-btn{right:22px;bottom:22px;font-size:2rem;z-index:3;}
 
   .float-comments{
-    position:relative;
-    flex:1;
-    width:100%;
-    min-height:0;
+    position:absolute;
+    left:0;
+    right:0;
+    top:58%;
+    bottom:0;
     pointer-events:none;
     overflow:hidden;
     z-index:2;
@@ -453,61 +452,26 @@ const videos = [
 const DAYS_KEY = "svae-days";
 const BOOK_START = "2026-02-06";
 const BOOK_DAYS = 21;
-const WORDS = [
-  "살기 좋다. 오늘은 특히.",
-  "따뜻한 물 한 잔도 괜찮다.",
-  "아직 남은 하루가 있다.",
-  "바람 냄새가 나쁘지 않다.",
-  "밥은 먹고 자자.",
-  "햇빛이 창까지 왔다.",
-  "이 밤도 지나간다.",
-  "살아 있어서, 다행이다.",
-  "천천히여도 된다.",
-  "오늘 하루만 더.",
-  "누가 기다릴 수도 있다.",
-  "작은 웃음이 남았다.",
-  "발밑이 단단하다.",
-  "괜찮아질 거라는 말은 아직 이르고, 그래도 숨은 쉬어진다.",
-  "하늘이 열려 있다.",
-  "살 만하다. 조금.",
-  "손을 따뜻하게 하자.",
-  "내일 아침이 온다.",
-  "꽃이 아니어도, 풀은 자란다.",
-  "울어도 된다. 그다음에도 하루다.",
-  "창문을 열면 공기가 바뀐다.",
-  "아직 좋아하는 게 있다.",
-  "걸어 나갈 수 있다.",
-  "별은 그냥 떠 있다. 그것도 좋다.",
-  "살기 좋다. 굳이 이유를 대지 않아도.",
-  "이불 속이 안전하다.",
-  "누군가의 하루가 여기 남겨졌다.",
-  "물 한 모금, 그다음 한 모금.",
-  "실패해도 아침은 온다.",
-  "오늘은 그냥 살아 있자.",
-  "가벼운 구름이다.",
-  "마음이 무거워도 몸은 여기 있다.",
-  "다시 웃을 이유가 오고 있다.",
-  "천천히, 살자.",
-  "밤공기가 부드럽다.",
-  "아직 늦지 않았다.",
-  "한 끼면 충분하다.",
-  "살아 있는 쪽이 맞다.",
-  "좋은 말이 없어도, 하루는 남는다.",
-  "여기까지 온 것만으로도.",
-  "발자국이 이어진다.",
-  "잠깐 멈춰도 삶은 기다린다.",
-  "따뜻한 쪽이 있다.",
-  "오늘은 살기로 했다.",
-  "하늘이 아직 넓다.",
-  "숨이 고르다. 그것부터.",
-  "살기 참 좋다.",
-  "또 보자, 내일."
-];
-
+let WORDS = ["살기 좋다. 오늘은 특히.", "오늘 하루만 더.", "또 보자, 내일."];
 let currentIndex = -1;
 let starStyle;
 let commentTimer = null;
-let commentIdx = Math.floor(Math.random() * WORDS.length);
+let commentIdx = 0;
+
+function parseWords(text){
+  return String(text).split(/\n/).map(s => s.trim()).filter(s => s && !s.startsWith("#"));
+}
+
+function setWords(list){
+  if(!list.length) return;
+  WORDS = list;
+  commentIdx = Math.floor(Math.random() * WORDS.length);
+}
+
+fetch("words.txt").then(r => {
+  if(!r.ok) throw new Error(r.status);
+  return r.text();
+}).then(t => setWords(parseWords(t))).catch(() => {});
 
 function todayKey(){
   const d = new Date();
