@@ -302,6 +302,13 @@
     margin-bottom:18px;
     line-height:1.8;
   }
+  .guest-sub{
+    display:block;
+    margin-top:.45em;
+    font-size:.82rem;
+    opacity:.75;
+    color:var(--warm);
+  }
 
   .guest-form{
     width:min(520px, 90vw);
@@ -364,11 +371,6 @@
     letter-spacing:.06em;
     opacity:.45;
     margin-bottom:.3em;
-  }
-  .guest-item .who{
-    margin-left:.45em;
-    font-size:.75rem;
-    opacity:.4;
   }
   .guest-item p{
     margin:0;
@@ -472,9 +474,8 @@
 
 <div id="guestScreen" class="screen">
   <div class="nav-btn back-btn" id="guestBack" role="button" tabindex="0" aria-label="닫기" onclick="hideGuest()">←</div>
-  <div class="guest-head">하루에 한두 줄씩, 남겨지고 있습니다.</div>
+  <div class="guest-head">하루에 한두 줄씩, 남겨지고 있습니다.<span class="guest-sub">네가 적는 한 줄은, 너만 아는 일기장에 남습니다.</span></div>
   <form class="guest-form" id="guestForm">
-    <input id="guestName" maxlength="12" autocomplete="nickname" placeholder="이름 (비워도 됩니다)">
     <textarea id="guestBody" maxlength="80" rows="2" placeholder="좋은 말 한 줄"></textarea>
     <button type="submit">남기기</button>
     <p class="guest-hint" id="guestHint"></p>
@@ -618,12 +619,6 @@ function renderBook(){
     art.className = "guest-item" + (n.today || mine ? " today" : "");
     const time = document.createElement("time");
     time.textContent = n.when;
-    if(n.who){
-      const who = document.createElement("span");
-      who.className = "who";
-      who.textContent = n.who;
-      time.appendChild(who);
-    }
     const p = document.createElement("p");
     p.textContent = n.text;
     art.appendChild(time);
@@ -677,11 +672,10 @@ function nowStamp(){
 function submitGuest(e){
   e.preventDefault();
   const hint = document.getElementById("guestHint");
-  const who = document.getElementById("guestName").value.trim().slice(0,12);
   const body = document.getElementById("guestBody").value.trim();
   hint.textContent = "";
   if(body.length < 2){ hint.textContent = "조금 더 적어 주세요."; return; }
-  if(isBlocked(body) || isBlocked(who)){ hint.textContent = "그런 말은 남길 수 없어요."; return; }
+  if(isBlocked(body)){ hint.textContent = "그런 말은 남길 수 없어요."; return; }
   if(hasLink(body)){ hint.textContent = "주소는 남길 수 없어요."; return; }
   const all = loadGuests();
   const today = todayKey();
@@ -690,7 +684,7 @@ function submitGuest(e){
     return;
   }
   if(all.some(x => x.text === body)){ hint.textContent = "같은 말이 이미 있어요."; return; }
-  all.unshift({who: who || "익명", text: body, day: today, when: nowStamp()});
+  all.unshift({text: body, day: today, when: nowStamp()});
   saveGuests(all);
   document.getElementById("guestBody").value = "";
   renderBook();
