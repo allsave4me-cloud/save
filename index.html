@@ -216,6 +216,13 @@
     background:rgba(0,0,0,.35);
   }
 
+  #guestScreen{
+    z-index:7;
+    background:rgba(9,10,15,.72);
+    backdrop-filter:blur(10px);
+    transition:opacity .45s ease, visibility .45s;
+  }
+
   .video-stage{
     width:min(880px, 90vw);
     display:flex;
@@ -464,7 +471,7 @@
 <button type="button" class="moon" id="moonBtn" aria-label="방명록" onclick="toggleGuest()"></button>
 
 <div id="guestScreen" class="screen">
-  <div class="nav-btn back-btn" role="button" tabindex="0" aria-label="돌아가기" onclick="showMain()">←</div>
+  <div class="nav-btn back-btn" id="guestBack" role="button" tabindex="0" aria-label="닫기" onclick="hideGuest()">←</div>
   <div class="guest-head">하루에 한두 줄씩, 남겨지고 있습니다.</div>
   <form class="guest-form" id="guestForm">
     <input id="guestName" maxlength="12" autocomplete="nickname" placeholder="이름 (비워도 됩니다)">
@@ -781,15 +788,16 @@ function nextVideo(){
 }
 
 function showGuest(){
-  stopSideComments();
-  hideScreens();
   document.getElementById("guestScreen").classList.add("on");
   renderBook();
-  document.getElementById("videoPlayer").src = "";
+}
+
+function hideGuest(){
+  document.getElementById("guestScreen").classList.remove("on");
 }
 
 function toggleGuest(){
-  if(document.getElementById("guestScreen").classList.contains("on")) showMain();
+  if(document.getElementById("guestScreen").classList.contains("on")) hideGuest();
   else showGuest();
 }
 
@@ -866,7 +874,8 @@ if(!quiet){
 }
 
 bindKeys(document.getElementById("nextBtn"), showVideo);
-document.querySelectorAll(".back-btn").forEach(el => bindKeys(el, showMain));
+document.querySelectorAll("#videoScreen .back-btn").forEach(el => bindKeys(el, showMain));
+bindKeys(document.getElementById("guestBack"), hideGuest);
 bindKeys(document.querySelector(".next-video-btn"), nextVideo);
 document.getElementById("guestForm").addEventListener("submit", submitGuest);
 </script>
