@@ -279,7 +279,7 @@
   }
   .float-comment{
     position:absolute;
-    max-width:240px;
+    max-width:min(240px, 22vw);
     opacity:0;
     font-size:.88rem;
     line-height:1.65;
@@ -750,12 +750,18 @@ function hideScreens(){
 
 function spawnComment(){
   const box = document.getElementById("floatComments");
-  if(!box) return;
+  if(!box || !WORDS.length) return;
   const el = document.createElement("div");
   el.className = "float-comment";
   el.textContent = WORDS[commentIdx % WORDS.length];
-  el.style.left = (4 + Math.random()*76) + "%";
-  el.style.bottom = (2 + Math.random()*18) + "%";
+  if(commentIdx % 2 === 0){
+    el.style.left = (2 + Math.random()*14) + "%";
+  }else{
+    el.style.left = "auto";
+    el.style.right = (2 + Math.random()*14) + "%";
+    el.style.textAlign = "right";
+  }
+  el.style.bottom = (2 + Math.random()*22) + "%";
   el.style.animationDuration = (10 + Math.random()*4) + "s";
   commentIdx++;
   box.appendChild(el);
@@ -765,7 +771,11 @@ function spawnComment(){
 function startSideComments(){
   stopSideComments();
   spawnComment();
-  commentTimer = setInterval(spawnComment, 1600);
+  spawnComment();
+  commentTimer = setInterval(() => {
+    spawnComment();
+    spawnComment();
+  }, 900);
 }
 
 function stopSideComments(){
