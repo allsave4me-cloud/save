@@ -278,7 +278,6 @@
     z-index:1;
   }
   .float-comment{
-    --op:.55;
     position:absolute;
     max-width:min(440px, 36vw);
     opacity:0;
@@ -287,13 +286,14 @@
     color:rgba(255,235,210,.5);
     text-shadow:0 2px 16px rgba(0,0,0,.75);
     animation:commentRise 12s linear forwards;
+    will-change:transform, opacity;
   }
 
   @keyframes commentRise{
-    0%{opacity:0;transform:translateY(0);}
-    8%{opacity:var(--op);}
-    62%{opacity:calc(var(--op) * .72);}
-    100%{opacity:0;transform:translateY(-100vh);}
+    0%{opacity:0;transform:translate3d(0,0,0);}
+    10%{opacity:.5;transform:translate3d(0,-10vh,0);}
+    70%{opacity:.35;transform:translate3d(0,-70vh,0);}
+    100%{opacity:0;transform:translate3d(0,-110vh,0);}
   }
 
   .guest-head{
@@ -416,11 +416,10 @@
   }
 
   @media (prefers-reduced-motion:reduce){
-    #stars-a,#stars-b,#stars-c,.shooting,.next-btn.show,.float-comment{animation:none;}
+    #stars-a,#stars-b,#stars-c,.shooting,.next-btn.show{animation:none;}
     .line{opacity:1;transform:none;}
     .letter-ready .line{animation:none;}
     .screen{transition:none;}
-    .float-comment{opacity:.45;transform:none;}
   }
 </style>
 </head>
@@ -764,23 +763,23 @@ function spawnComment(){
   }
   el.style.bottom = (2 + Math.random()*22) + "%";
   el.style.fontSize = (0.68 + Math.random()*0.7).toFixed(2) + "rem";
-  el.style.setProperty("--op", (0.3 + Math.random()*0.42).toFixed(2));
   el.style.letterSpacing = ((Math.random()*0.12) - 0.03).toFixed(3) + "em";
   el.style.fontWeight = Math.random() < 0.25 ? "500" : "400";
   el.style.animationDuration = (10 + Math.random()*4) + "s";
   commentIdx++;
   box.appendChild(el);
-  setTimeout(() => el.remove(), 15000);
+  setTimeout(() => el.remove(), 16000);
 }
 
 function startSideComments(){
   stopSideComments();
+  const mobile = window.innerWidth < 640;
   spawnComment();
-  spawnComment();
+  if(!mobile) spawnComment();
   commentTimer = setInterval(() => {
     spawnComment();
-    spawnComment();
-  }, 900);
+    if(!mobile) spawnComment();
+  }, mobile ? 1500 : 900);
 }
 
 function stopSideComments(){
