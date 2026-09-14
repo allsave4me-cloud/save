@@ -214,23 +214,27 @@
 
   #videoScreen{
     background:rgba(0,0,0,.35);
+    justify-content:flex-start;
+    align-items:stretch;
   }
 
   .video-stage{
-    width:min(880px, 90vw);
+    width:100%;
+    flex-shrink:0;
     display:flex;
     flex-direction:column;
     align-items:center;
-    z-index:1;
+    position:relative;
+    z-index:3;
   }
 
   .frame{
-    width:100%;
+    width:min(100%, calc(46vh * 16 / 9));
     aspect-ratio:16/9;
     background:#000;
-    border-radius:12px;
     overflow:hidden;
-    border:1px solid rgba(255,255,255,.08);
+    border:0;
+    border-bottom:1px solid rgba(255,255,255,.08);
   }
 
   #videoPlayer{
@@ -259,18 +263,15 @@
     transition:opacity .2s;
   }
   .nav-btn:hover{opacity:1;}
-  .back-btn{top:18px;left:16px;}
-  .next-video-btn{right:22px;bottom:22px;font-size:2rem;z-index:3;}
+  .back-btn{top:18px;left:16px;z-index:5;}
+  .next-video-btn{right:22px;bottom:22px;font-size:2rem;z-index:5;}
 
   .float-comments{
     position:absolute;
-    left:0;
-    right:0;
-    top:58%;
-    bottom:0;
+    inset:0;
     pointer-events:none;
     overflow:hidden;
-    z-index:2;
+    z-index:1;
   }
   .float-comment{
     position:absolute;
@@ -280,14 +281,14 @@
     line-height:1.65;
     color:rgba(255,235,210,.5);
     text-shadow:0 2px 16px rgba(0,0,0,.75);
-    animation:commentRise 8.5s ease-out forwards;
+    animation:commentRise 12s linear forwards;
   }
 
   @keyframes commentRise{
-    0%{opacity:0;transform:translateY(8px);}
-    12%{opacity:.5;}
-    70%{opacity:.36;}
-    100%{opacity:0;transform:translateY(-32vh);}
+    0%{opacity:0;transform:translateY(0);}
+    8%{opacity:.55;}
+    62%{opacity:.4;}
+    100%{opacity:0;transform:translateY(-100vh);}
   }
 
   .guest-head{
@@ -448,6 +449,8 @@
 <div id="videoScreen" class="screen">
   <div class="nav-btn back-btn" role="button" tabindex="0" aria-label="돌아가기" onclick="showMain()">←</div>
 
+  <div class="float-comments" id="floatComments" aria-hidden="true"></div>
+
   <div class="video-stage">
     <div class="frame">
       <iframe id="videoPlayer"
@@ -459,7 +462,6 @@
   </div>
 
   <div class="nav-btn next-video-btn" role="button" tabindex="0" aria-label="다음 노래" onclick="nextVideo()">&gt;</div>
-  <div class="float-comments" id="floatComments" aria-hidden="true"></div>
 </div>
 
 <button type="button" class="moon" id="moonBtn" aria-label="방명록" onclick="toggleGuest()"></button>
@@ -749,12 +751,12 @@ function spawnComment(){
   const el = document.createElement("div");
   el.className = "float-comment";
   el.textContent = WORDS[commentIdx % WORDS.length];
-  el.style.left = (6 + Math.random()*72) + "%";
-  el.style.bottom = (4 + Math.random()*28) + "%";
-  el.style.animationDuration = (6.8 + Math.random()*3) + "s";
+  el.style.left = (4 + Math.random()*76) + "%";
+  el.style.bottom = (2 + Math.random()*18) + "%";
+  el.style.animationDuration = (10 + Math.random()*4) + "s";
   commentIdx++;
   box.appendChild(el);
-  setTimeout(() => el.remove(), 11000);
+  setTimeout(() => el.remove(), 15000);
 }
 
 function startSideComments(){
