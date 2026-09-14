@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <title>살고싶어</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'self'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self'; connect-src 'self'; frame-src https://www.youtube-nocookie.com https://www.youtube.com about:blank; object-src 'none'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#090a0f">
 <meta name="description" content="당신이 오늘 마치려던 그 일, 딱 하루만 미뤄주실 수 있나요?">
@@ -19,7 +21,9 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&display=swap">
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
+<script src="app.js" defer></script>
 
 <style>
   :root{
@@ -33,9 +37,20 @@
     height:100%;
     margin:0;
     overflow:hidden;
-    font-family:'Nanum Gothic', serif;
+    font-family:'Nanum Myeongjo', 'Nanum Gothic', serif;
     background:#090a0f;
     color:#fff;
+    color-scheme:dark;
+  }
+
+  .visually-hidden{
+    position:absolute;
+    width:1px;height:1px;
+    padding:0;margin:-1px;
+    overflow:hidden;
+    clip:rect(0,0,0,0);
+    white-space:nowrap;
+    border:0;
   }
 
   body{
@@ -131,7 +146,7 @@
     letter-spacing:.42em;
     text-transform:uppercase;
     color:rgba(255,235,210,.45);
-    margin-bottom:18px;
+    margin:0 0 18px;
     opacity:0;
     animation:textFadeIn 2s forwards .2s;
   }
@@ -168,6 +183,7 @@
     color:rgba(255,235,210,.7);
     opacity:0;
     min-height:1.4em;
+    margin-bottom:0;
     transition:opacity 1.6s ease;
   }
   .day-mark.show{opacity:1;}
@@ -182,7 +198,7 @@
     margin-left:auto;
     margin-right:auto;
   }
-  .day-dots i{
+  .day-dots span{
     width:5px;height:5px;
     border-radius:50%;
     background:rgba(255,215,0,.75);
@@ -190,6 +206,14 @@
     display:block;
   }
 
+  button.next-btn,
+  button.nav-btn{
+    color:inherit;
+    background:transparent;
+    border:0;
+    font-family:inherit;
+    line-height:1;
+  }
   .next-btn{
     margin-top:28px;
     font-size:2rem;
@@ -225,6 +249,7 @@
 
   .video-stage{
     width:min(880px, 90vw);
+    margin:0;
     display:flex;
     flex-direction:column;
     align-items:center;
@@ -255,6 +280,7 @@
     min-height:1.4em;
     text-align:center;
     opacity:.85;
+    font-style:normal;
   }
 
   .nav-btn{
@@ -267,6 +293,7 @@
     transition:opacity .2s;
   }
   .nav-btn:hover{opacity:1;}
+  .nav-btn:focus-visible{outline:1px solid rgba(255,235,210,.45);}
   .back-btn{top:18px;left:16px;z-index:5;}
   .next-video-btn{right:22px;bottom:22px;font-size:2rem;z-index:5;}
 
@@ -279,6 +306,7 @@
   }
   .float-comment{
     position:absolute;
+    margin:0;
     max-width:min(440px, 36vw);
     opacity:0;
     font-size:.88rem;
@@ -299,8 +327,9 @@
   .guest-head{
     text-align:center;
     font-size:.95rem;
+    font-weight:400;
     opacity:.7;
-    margin-bottom:18px;
+    margin:0 0 18px;
     line-height:1.8;
   }
   .guest-sub{
@@ -433,9 +462,11 @@
   <div id="shoot" class="shooting"></div>
 </div>
 
-<div id="mainScreen" class="screen on">
-  <div class="message-box" id="letter">
-    <div class="to-you">To You</div>
+<main>
+<section id="mainScreen" class="screen on" aria-labelledby="pageTitle">
+  <article class="message-box" id="letter">
+    <p class="to-you">To You</p>
+    <h1 id="pageTitle" class="visually-hidden">살고싶어</h1>
     <span class="line">당신이 오늘 마치려던 그 일,</span><br>
     <span class="line">딱 <span class="highlight">하루만</span> 미뤄주실 수 있나요?</span><br><br>
 
@@ -445,452 +476,50 @@
     <span class="line">언젠가 다시 웃을 이유 하나쯤은<br>
     반드시 당신을 찾아올 테니까요.</span>
 
-    <div class="day-mark" id="dayMark"></div>
+    <p class="day-mark" id="dayMark"></p>
     <div class="day-dots" id="dayDots" hidden></div>
 
-    <div class="next-btn" id="nextBtn" role="button" tabindex="0" aria-label="이어서" onclick="showVideo()">&gt;</div>
-  </div>
-</div>
+    <button type="button" class="next-btn" id="nextBtn" aria-label="이어서">&gt;</button>
+  </article>
+</section>
 
-<div id="videoScreen" class="screen">
-  <div class="nav-btn back-btn" role="button" tabindex="0" aria-label="돌아가기" onclick="showMain()">←</div>
+<section id="videoScreen" class="screen" aria-label="남겨둔 노래" aria-hidden="true" inert>
+  <button type="button" class="nav-btn back-btn" id="videoBack" aria-label="돌아가기">←</button>
 
-  <div class="float-comments" id="floatComments" aria-hidden="true"></div>
+  <aside class="float-comments" id="floatComments" aria-hidden="true"></aside>
 
-  <div class="video-stage">
+  <figure class="video-stage">
     <div class="frame">
       <iframe id="videoPlayer"
-        allow="autoplay; encrypted-media; picture-in-picture"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
         allowfullscreen
         title="남겨둔 노래"></iframe>
     </div>
-    <div id="videoMemo"></div>
-  </div>
+    <figcaption id="videoMemo"></figcaption>
+  </figure>
 
-  <div class="nav-btn next-video-btn" role="button" tabindex="0" aria-label="다음 노래" onclick="nextVideo()">&gt;</div>
-</div>
+  <button type="button" class="nav-btn next-video-btn" id="nextVideoBtn" aria-label="다음 노래">&gt;</button>
+</section>
 
-<button type="button" class="moon" id="moonBtn" aria-label="방명록" onclick="toggleGuest()"></button>
-
-<div id="guestScreen" class="screen">
-  <div class="nav-btn back-btn" id="guestBack" role="button" tabindex="0" aria-label="닫기" onclick="hideGuest()">←</div>
-  <div class="guest-head">여기는 달 뒤에 숨겨 둔, 너만의 밤입니다.<span class="guest-sub">네가 적는 한 줄은, 너만 아는 일기장에 남습니다.</span></div>
-  <form class="guest-form" id="guestForm">
-    <textarea id="guestBody" maxlength="80" rows="2" placeholder="다음에 볼때 더 나은 삶은 위한 말을 적어봐! 너의 생각!"></textarea>
+<section id="guestScreen" class="screen" role="dialog" aria-modal="true" aria-labelledby="guestTitle" aria-hidden="true" inert>
+  <button type="button" class="nav-btn back-btn" id="guestBack" aria-label="닫기">←</button>
+  <header class="guest-head" id="guestTitle">여기는 달 뒤에 숨겨 둔, 너만의 밤입니다.<span class="guest-sub">네가 적는 한 줄은, 너만 아는 일기장에 남습니다.</span></header>
+  <form class="guest-form" id="guestForm" method="post" action="#" autocomplete="off">
+    <label class="visually-hidden" for="guestBody">좋은 말 한 줄</label>
+    <textarea id="guestBody" name="note" maxlength="80" rows="2" autocomplete="off" placeholder="다음에 볼때 더 나은 삶은 위한 말을 적어봐! 너의 생각!"></textarea>
     <button type="submit">남기기</button>
-    <p class="guest-hint" id="guestHint"></p>
+    <p class="guest-hint" id="guestHint" role="status" aria-live="polite"></p>
   </form>
-  <div class="guest-list" id="guestList"></div>
-</div>
+  <section class="guest-list" id="guestList" aria-label="남겨 둔 말"></section>
+</section>
+</main>
 
-<div class="corner-note" id="sign">
+<button type="button" class="moon" id="moonBtn" aria-label="달 뒤의 일기장"></button>
+
+<footer class="corner-note" id="sign">
   고마워, 그리고 감사해 미안해 또 보자
-</div>
+</footer>
 
-<script>
-/* 유튜브 주소 그대로 붙여넣으면 됩니다. 줄을 늘리면 영상이 늘어납니다. */
-const videos = [
-  {url:"https://www.youtube.com/watch?v=ekKnNTpm3Cs", memo:"죽지마"},
-  {url:"https://www.youtube.com/watch?v=RohZ89_w93o", memo:"실패라고 생각하지마"},
-  {url:"https://www.youtube.com/watch?v=cS-IiArGmcU", memo:"가족을 생각해"},
-  {url:"https://www.youtube.com/watch?v=rGRC_Nf8fww", memo:"F.L.Y"},
-  {url:"https://www.youtube.com/watch?v=F1vNK4jSYr0", memo:"힘내 쨔샤"},
-  {url:"https://www.youtube.com/watch?v=C6st9z_iaao", memo:"나도 이미 알고 있어"},
-  {url:"https://www.youtube.com/watch?v=bpPstvQZXWo", memo:"별 보러 가자"},
-  {url:"https://www.youtube.com/watch?v=Dic27EnDDls", memo:"걱정 말아요"},
-  {url:"https://www.youtube.com/watch?v=SK6Sm2Ki9tI", memo:"천천히 가도 돼"},
-  {url:"https://www.youtube.com/watch?v=GOS6C2jXTa8", memo:"도망가자"},
-  {url:"https://www.youtube.com/watch?v=BzYnNdJhZQw", memo:"밤편지"},
-  {url:"https://www.youtube.com/watch?v=Yg8B0z76qHE", memo:"혼자가 아니야"},
-  {url:"https://www.youtube.com/watch?v=2-P-NIiLiQc", memo:"개화"},
-  {url:"https://www.youtube.com/watch?v=vnS_jn2uibs", memo:"한 페이지"},
-  {url:"https://www.youtube.com/watch?v=k4V3Mo61fJM", memo:"집으로"},
-  {url:"https://www.youtube.com/watch?v=W4SXOQ7xFoo", memo:"안아줘"}
-];
-
-const DAYS_KEY = "svae-days";
-const GUEST_KEY = "svae-guest-notes";
-const BOOK_START = "2026-02-06";
-const BOOK_DAYS = 21;
-let WORDS = ["살기 좋다. 오늘은 특히.", "오늘 하루만 더.", "또 보자, 내일."];
-let currentIndex = -1;
-let starStyle;
-let commentTimer = null;
-let commentIdx = 0;
-
-function parseWords(text){
-  return String(text).split(/\n/).map(s => s.trim()).filter(s => s && !s.startsWith("#"));
-}
-
-function setWords(list){
-  if(!list.length) return;
-  WORDS = list;
-  commentIdx = Math.floor(Math.random() * WORDS.length);
-}
-
-fetch("words.txt").then(r => {
-  if(!r.ok) throw new Error(r.status);
-  return r.text();
-}).then(t => setWords(parseWords(t))).catch(() => {});
-
-function todayKey(){
-  const d = new Date();
-  const m = String(d.getMonth()+1).padStart(2,"0");
-  const day = String(d.getDate()).padStart(2,"0");
-  return `${d.getFullYear()}-${m}-${day}`;
-}
-
-function stayToday(){
-  let days = [];
-  try{ days = JSON.parse(localStorage.getItem(DAYS_KEY) || "[]"); }
-  catch(e){ days = []; }
-  if(!Array.isArray(days)) days = [];
-  const t = todayKey();
-  if(!days.includes(t)) days.push(t);
-  days.sort();
-  try{ localStorage.setItem(DAYS_KEY, JSON.stringify(days)); }
-  catch(e){}
-  return days;
-}
-
-function renderDays(days){
-  const n = days.length;
-  const mark = document.getElementById("dayMark");
-  const dots = document.getElementById("dayDots");
-  if(n <= 1){
-    mark.textContent = "";
-    dots.hidden = true;
-    return;
-  }
-  mark.textContent = `이게 ${n}번째 하루입니다.`;
-  dots.hidden = false;
-  dots.innerHTML = "";
-  const show = Math.min(n, 24);
-  for(let i=0;i<show;i++){
-    dots.appendChild(document.createElement("i"));
-  }
-}
-
-function hashStr(s){
-  let h = 2166136261;
-  for(let i=0;i<s.length;i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
-  return h >>> 0;
-}
-
-function notesForDay(key){
-  const h = hashStr(key + ":svae-book");
-  const count = (h % 2) + 1;
-  const seen = new Set();
-  const out = [];
-  for(let i=0;i<count;i++){
-    let idx = (h + i * 97) % WORDS.length;
-    if(seen.has(idx)) idx = (idx + 1) % WORDS.length;
-    seen.add(idx);
-    const mins = 7 * 60 + ((h >>> (i * 7)) % (16 * 60));
-    const hh = Math.floor(mins / 60);
-    const mm = mins % 60;
-    out.push({
-      when: `${key.slice(0,4)}.${key.slice(5,7)}.${key.slice(8,10)}  ${String(hh).padStart(2,"0")}:${String(mm).padStart(2,"0")}`,
-      text: WORDS[idx],
-      today: key === todayKey()
-    });
-  }
-  out.sort((a,b) => a.when < b.when ? 1 : -1);
-  return out;
-}
-
-function buildBook(){
-  const today = todayKey();
-  const [ty,tm,td] = today.split("-").map(Number);
-  const end = new Date(ty, tm-1, td);
-  const [sy,sm,sd] = BOOK_START.split("-").map(Number);
-  const start = new Date(sy, sm-1, sd);
-  let from = new Date(end);
-  from.setDate(from.getDate() - (BOOK_DAYS - 1));
-  if(from < start) from = start;
-  const items = [];
-  for(let d = new Date(end); d >= from; d.setDate(d.getDate()-1)){
-    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-    items.push(...notesForDay(key));
-  }
-  return items;
-}
-
-function renderBook(){
-  const box = document.getElementById("guestList");
-  box.innerHTML = "";
-  const add = (n, mine) => {
-    const art = document.createElement("article");
-    art.className = "guest-item" + (n.today || mine ? " today" : "");
-    const time = document.createElement("time");
-    time.textContent = n.when;
-    const p = document.createElement("p");
-    p.textContent = n.text;
-    art.appendChild(time);
-    art.appendChild(p);
-    box.appendChild(art);
-  };
-  loadGuests().forEach(n => add(n, true));
-  buildBook().forEach(n => add(n, false));
-}
-
-function loadGuests(){
-  try{
-    const a = JSON.parse(localStorage.getItem(GUEST_KEY) || "[]");
-    return Array.isArray(a) ? a : [];
-  }catch(e){ return []; }
-}
-
-function saveGuests(list){
-  try{ localStorage.setItem(GUEST_KEY, JSON.stringify(list.slice(0, 200))); }
-  catch(e){}
-}
-
-function normBad(s){
-  return String(s).toLowerCase().replace(/[\s._*\-·'"“”]/g,"");
-}
-
-function isBlocked(text){
-  const n = normBad(text);
-  const bad = [
-    "시발","씨발","씨팔","시팔","ㅆㅂ","ㅅㅂ","tlqkf","tlqkf",
-    "병신","븅신","지랄","wlfkf","qudtls","좆","좇","ㅈ같",
-    "꺼져","닥쳐","개새","개소리","미친놈","미친년",
-    "니애미","느금마","염병","존나","졸라",
-    "fuck","shit","bitch","asshole",
-    "죽어라","뒤져","자살해","같이죽","함께죽"
-  ];
-  return bad.some(w => n.includes(normBad(w)));
-}
-
-function hasLink(s){
-  return /https?:\/\/|www\.|\.com\b|\.kr\b|bit\.ly/i.test(s);
-}
-
-function nowStamp(){
-  const d = new Date();
-  return todayKey().replace(/-/g,".") + "  " +
-    String(d.getHours()).padStart(2,"0") + ":" +
-    String(d.getMinutes()).padStart(2,"0");
-}
-
-function submitGuest(e){
-  e.preventDefault();
-  const hint = document.getElementById("guestHint");
-  const body = document.getElementById("guestBody").value.trim();
-  hint.textContent = "";
-  if(body.length < 2){ hint.textContent = "조금 더 적어 주세요."; return; }
-  if(isBlocked(body)){ hint.textContent = "그런 말은 남길 수 없어요."; return; }
-  if(hasLink(body)){ hint.textContent = "주소는 남길 수 없어요."; return; }
-  const all = loadGuests();
-  const today = todayKey();
-  if(all.filter(x => x.day === today).length >= 2){
-    hint.textContent = "오늘은 두 줄이면 충분해요.";
-    return;
-  }
-  if(all.some(x => x.text === body)){ hint.textContent = "같은 말이 이미 있어요."; return; }
-  all.unshift({text: body, day: today, when: nowStamp()});
-  saveGuests(all);
-  document.getElementById("guestBody").value = "";
-  renderBook();
-}
-
-function parseYoutube(input){
-  const raw = String(input || "").trim();
-  const out = {id:"", list:""};
-  if(!raw) return out;
-  if(/^[a-zA-Z0-9_-]{11}$/.test(raw)){
-    out.id = raw;
-    return out;
-  }
-  try{
-    const u = new URL(raw);
-    out.list = u.searchParams.get("list") || "";
-    if(u.searchParams.get("v")) out.id = u.searchParams.get("v");
-    else {
-      const parts = u.pathname.split("/").filter(Boolean);
-      if(u.hostname.replace(/^www\./,"") === "youtu.be") out.id = parts[0] || "";
-      else if(parts[0]==="embed" && parts[1] && parts[1]!=="videoseries") out.id = parts[1];
-      else if(parts[0]==="shorts" || parts[0]==="live") out.id = parts[1] || "";
-    }
-  }catch(e){}
-  return out;
-}
-
-function pickRandom(){
-  let i;
-  do{
-    i = Math.floor(Math.random()*videos.length);
-  }while(i === currentIndex && videos.length > 1);
-  currentIndex = i;
-  return videos[i];
-}
-
-function play(v){
-  const p = parseYoutube(v.url || v.id);
-  const q = new URLSearchParams({autoplay:"1", rel:"0", modestbranding:"1"});
-  let path = "";
-  if(p.id){
-    path = p.id;
-    if(p.list) q.set("list", p.list);
-  }else if(p.list){
-    path = "videoseries";
-    q.set("list", p.list);
-  }else return;
-  document.getElementById("videoPlayer").src =
-    `https://www.youtube-nocookie.com/embed/${path}?${q}`;
-  document.getElementById("videoMemo").textContent = v.memo || "";
-}
-
-function hideScreens(){
-  document.getElementById("mainScreen").classList.remove("on");
-  document.getElementById("videoScreen").classList.remove("on");
-  document.getElementById("guestScreen").classList.remove("on");
-}
-
-function spawnComment(){
-  const box = document.getElementById("floatComments");
-  if(!box || !WORDS.length) return;
-  const el = document.createElement("div");
-  el.className = "float-comment";
-  el.textContent = WORDS[commentIdx % WORDS.length];
-  if(commentIdx % 2 === 0){
-    el.style.left = (2 + Math.random()*14) + "%";
-  }else{
-    el.style.left = "auto";
-    el.style.right = (2 + Math.random()*14) + "%";
-    el.style.textAlign = "right";
-  }
-  el.style.bottom = (2 + Math.random()*22) + "%";
-  el.style.fontSize = (0.68 + Math.random()*0.7).toFixed(2) + "rem";
-  el.style.letterSpacing = ((Math.random()*0.12) - 0.03).toFixed(3) + "em";
-  el.style.fontWeight = Math.random() < 0.25 ? "500" : "400";
-  el.style.animationDuration = (10 + Math.random()*4) + "s";
-  commentIdx++;
-  box.appendChild(el);
-  setTimeout(() => el.remove(), 16000);
-}
-
-function startSideComments(){
-  stopSideComments();
-  const mobile = window.innerWidth < 640;
-  spawnComment();
-  if(!mobile) spawnComment();
-  commentTimer = setInterval(() => {
-    spawnComment();
-    if(!mobile) spawnComment();
-  }, mobile ? 1500 : 900);
-}
-
-function stopSideComments(){
-  clearInterval(commentTimer);
-  commentTimer = null;
-  const box = document.getElementById("floatComments");
-  if(box) box.innerHTML = "";
-}
-
-function showVideo(){
-  hideScreens();
-  document.getElementById("videoScreen").classList.add("on");
-  play(pickRandom());
-  startSideComments();
-}
-
-function nextVideo(){
-  play(pickRandom());
-}
-
-function showGuest(){
-  document.getElementById("guestScreen").classList.add("on");
-  renderBook();
-}
-
-function hideGuest(){
-  document.getElementById("guestScreen").classList.remove("on");
-}
-
-function toggleGuest(){
-  if(document.getElementById("guestScreen").classList.contains("on")) hideGuest();
-  else showGuest();
-}
-
-function showMain(){
-  stopSideComments();
-  hideScreens();
-  document.getElementById("mainScreen").classList.add("on");
-  document.getElementById("videoPlayer").src = "";
-}
-
-function layerShadows(count, size){
-  const w = Math.max(window.innerWidth, 320);
-  let s = "";
-  for(let i=0;i<count;i++){
-    s += `${Math.random()*w}px ${Math.random()*2000}px 0 ${Math.random()*size}px rgba(255,255,255,${0.35+Math.random()*0.65}),`;
-  }
-  return s.slice(0,-1);
-}
-
-function createStars(){
-  if(starStyle) starStyle.remove();
-  starStyle = document.createElement("style");
-  const a = layerShadows(140, 1.2);
-  const b = layerShadows(90, 1.8);
-  const c = layerShadows(50, 2.4);
-  starStyle.textContent =
-    `#stars-a,#stars-a:after{box-shadow:${a};}` +
-    `#stars-b,#stars-b:after{box-shadow:${b};}` +
-    `#stars-c,#stars-c:after{box-shadow:${c};}`;
-  document.head.appendChild(starStyle);
-}
-
-function shootOnce(){
-  const el = document.getElementById("shoot");
-  el.classList.remove("go");
-  el.style.top = (8 + Math.random()*36) + "%";
-  el.style.left = (5 + Math.random()*60) + "%";
-  void el.offsetWidth;
-  el.classList.add("go");
-}
-
-function bindKeys(el, fn){
-  el.addEventListener("keydown", e => {
-    if(e.key === "Enter" || e.key === " "){
-      e.preventDefault();
-      fn();
-    }
-  });
-}
-
-createStars();
-window.addEventListener("resize", createStars);
-
-const days = stayToday();
-renderDays(days);
-
-requestAnimationFrame(() => {
-  document.getElementById("letter").classList.add("letter-ready");
-});
-
-const quiet = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const later = quiet ? 0 : 8200;
-setTimeout(() => document.getElementById("nextBtn").classList.add("show"), later);
-if(days.length > 1){
-  setTimeout(() => document.getElementById("dayMark").classList.add("show"), quiet ? 0 : 9000);
-}
-setTimeout(() => {
-  document.getElementById("sign").classList.add("show");
-}, quiet ? 0 : 10400);
-
-if(!quiet){
-  setTimeout(shootOnce, 3500);
-  setInterval(shootOnce, 14000);
-}
-
-bindKeys(document.getElementById("nextBtn"), showVideo);
-document.querySelectorAll("#videoScreen .back-btn").forEach(el => bindKeys(el, showMain));
-bindKeys(document.getElementById("guestBack"), hideGuest);
-bindKeys(document.querySelector(".next-video-btn"), nextVideo);
-document.getElementById("guestForm").addEventListener("submit", submitGuest);
-</script>
 </body>
 </html>
