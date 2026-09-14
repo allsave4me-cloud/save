@@ -2,109 +2,316 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>To You</title>
+<title>살고싶어</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090a0f">
+<meta name="description" content="당신이 오늘 마치려던 그 일, 딱 하루만 미뤄주실 수 있나요?">
+<link rel="canonical" href="https://xn--299a098autbi6d.com/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:site_name" content="살고싶어">
+<meta property="og:title" content="살고싶어">
+<meta property="og:description" content="당신이 오늘 마치려던 그 일, 딱 하루만 미뤄주실 수 있나요?">
+<meta property="og:url" content="https://xn--299a098autbi6d.com/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="살고싶어">
+<meta name="twitter:description" content="당신이 오늘 마치려던 그 일, 딱 하루만 미뤄주실 수 있나요?">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
+  :root{
+    --gold:#ffd700;
+    --warm:#ffebd2;
+  }
+
+  *{box-sizing:border-box;}
+
   html,body{
-  height:100%;
-  margin:0;
-  overflow:hidden;
-  font-family:'Nanum Myeongjo', serif;
-  background: radial-gradient(ellipse at bottom,#1b2735 0%,#090a0f 100%);
-  color:#fff;
-}
+    height:100%;
+    margin:0;
+    overflow:hidden;
+    font-family:'Nanum Myeongjo', serif;
+    background:#090a0f;
+    color:#fff;
+  }
+
+  body{
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 115%, rgba(255,186,120,.16) 0%, transparent 55%),
+      radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 72%);
+  }
+
+  .sky{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .moon{
+    position:absolute;
+    top:11%;
+    right:16%;
+    width:64px;
+    height:64px;
+    border-radius:50%;
+    background:#f3ead2;
+    opacity:.32;
+    box-shadow:0 0 60px 18px rgba(255,240,210,.14);
+  }
+
+  .horizon{
+    position:absolute;
+    left:0;right:0;bottom:0;
+    height:28%;
+    background:linear-gradient(to top, rgba(255,176,110,.12), transparent);
+    opacity:.7;
+  }
+
+  .stars{
+    position:absolute;
+    top:0;left:0;
+    width:2px;height:2px;
+    background:transparent;
+    border-radius:50%;
+  }
+  #stars-a{animation:drift 80s linear infinite;}
+  #stars-b{animation:drift 140s linear infinite;}
+  #stars-c{animation:drift 220s linear infinite;}
+  #stars-a:after,#stars-b:after,#stars-c:after{
+    content:"";
+    position:absolute;
+    top:2000px;
+    width:2px;height:2px;
+    border-radius:50%;
+  }
+
+  .shooting{
+    position:absolute;
+    width:90px;height:1px;
+    background:linear-gradient(90deg, rgba(255,255,255,.9), transparent);
+    opacity:0;
+    transform:rotate(-28deg);
+    filter:drop-shadow(0 0 4px #fff);
+  }
+  .shooting.go{
+    animation:shoot 1.1s ease-out forwards;
+  }
+
+  .screen{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    z-index:1;
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity 1.1s ease, visibility 1.1s;
+  }
+  .screen.on{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+  }
+
+  .to-you{
+    font-size:.78rem;
+    letter-spacing:.42em;
+    text-transform:uppercase;
+    color:rgba(255,235,210,.45);
+    margin-bottom:18px;
+    opacity:0;
+    animation:textFadeIn 2s forwards .2s;
+  }
+
+  .message-box{
+    text-align:center;
+    line-height:2.4;
+    font-size:1.35rem;
+    padding:28px 20px 8px;
+    max-width:90%;
+    width:620px;
+    text-shadow:0 2px 18px rgba(0,0,0,.55);
+  }
+
+  .line{
+    display:inline-block;
+    opacity:0;
+    transform:translateY(18px);
+  }
+  .letter-ready .line:nth-of-type(1){animation:textFadeIn 1.5s forwards 1.0s;}
+  .letter-ready .line:nth-of-type(2){animation:textFadeIn 1.5s forwards 2.8s;}
+  .letter-ready .line:nth-of-type(3){animation:textFadeIn 1.5s forwards 4.6s;}
+  .letter-ready .line:nth-of-type(4){animation:textFadeIn 1.5s forwards 6.4s;color:var(--warm);}
+
+  .highlight{
+    color:var(--gold);
+    text-shadow:0 0 10px rgba(255,215,0,.4);
+  }
+
+  .day-mark{
+    margin-top:22px;
+    font-size:.92rem;
+    letter-spacing:.08em;
+    color:rgba(255,235,210,.7);
+    opacity:0;
+    min-height:1.4em;
+    transition:opacity 1.6s ease;
+  }
+  .day-mark.show{opacity:1;}
+
+  .day-dots{
+    display:flex;
+    justify-content:center;
+    gap:6px;
+    flex-wrap:wrap;
+    margin-top:10px;
+    max-width:280px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .day-dots i{
+    width:5px;height:5px;
+    border-radius:50%;
+    background:rgba(255,215,0,.75);
+    box-shadow:0 0 6px rgba(255,215,0,.45);
+    display:block;
+  }
+
+  .next-btn{
+    margin-top:28px;
+    font-size:2rem;
+    opacity:0;
+    cursor:pointer;
+    user-select:none;
+    width:56px;height:56px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-left:auto;
+    margin-right:auto;
+    border-radius:50%;
+    transition:opacity .4s, transform .3s, background .3s;
+  }
+  .next-btn.show{
+    opacity:.55;
+    animation:breathe 2.8s ease-in-out infinite;
+  }
+  .next-btn:hover{opacity:.95;background:rgba(255,255,255,.06);}
+  .next-btn:focus-visible{outline:1px solid rgba(255,215,0,.5);opacity:.95;}
+
+  #videoScreen{
+    background:rgba(0,0,0,.35);
+  }
+
+  .video-stage{
+    width:min(880px, 90vw);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .frame{
+    width:100%;
+    aspect-ratio:16/9;
+    background:#000;
+    border-radius:12px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.08);
+  }
+
+  #videoPlayer{
+    width:100%;
+    height:100%;
+    border:0;
+  }
+
+  #videoMemo{
+    margin-top:18px;
+    font-size:1.15rem;
+    letter-spacing:.04em;
+    color:var(--warm);
+    min-height:1.6em;
+    text-align:center;
+    opacity:.85;
+  }
+
+  .nav-btn{
+    position:absolute;
+    cursor:pointer;
+    user-select:none;
+    opacity:.7;
+    padding:10px 14px;
+    font-size:1.6rem;
+    transition:opacity .2s;
+  }
+  .nav-btn:hover{opacity:1;}
+  .back-btn{top:18px;left:16px;}
+  .next-video-btn{right:22px;bottom:22px;font-size:2rem;}
+
   .corner-note{
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  font-size: 0.85rem;
-  opacity: 0.6;
-  z-index: 9999;
-  pointer-events: none;
-}
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    font-size:.85rem;
+    opacity:0;
+    z-index:9;
+    pointer-events:none;
+    transition:opacity 2s ease;
+  }
+  .corner-note.show{opacity:.62;}
 
-/* 별 */
-#stars{
-  width:1px;height:1px;background:transparent;
-  animation:animStar 50s linear infinite;
-}
-#stars:after{
-  content:" ";position:absolute;top:2000px;width:1px;height:1px;
-}
+  @keyframes drift{
+    from{transform:translateY(0);}
+    to{transform:translateY(-2000px);}
+  }
+  @keyframes textFadeIn{
+    to{opacity:1;transform:translateY(0);}
+  }
+  @keyframes breathe{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(5px);}
+  }
+  @keyframes shoot{
+    0%{opacity:0;transform:translate(0,0) rotate(-28deg);}
+    12%{opacity:1;}
+    100%{opacity:0;transform:translate(420px,230px) rotate(-28deg);}
+  }
 
-/* 메인 화면 */
-.container{
-  position:absolute;top:0;left:0;width:100%;height:100%;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-}
+  @media (max-width:640px){
+    .message-box{font-size:1.12rem;line-height:2.2;padding:12px 8px;}
+    .moon{width:48px;height:48px;top:10%;right:10%;}
+    .nav-btn{font-size:1.35rem;}
+  }
 
-.message-box{
-  text-align:center;
-  line-height:2.4;
-  font-size:1.4rem;
-  padding:40px;
-  background:rgba(255,255,255,0.03);
-  border-radius:20px;
-  backdrop-filter:blur(3px);
-  border:1px solid rgba(255,255,255,0.05);
-  max-width:90%;width:600px;
-  opacity:0;
-  animation:fadeInUp 2s forwards .5s;
-}
-
-.line{display:inline-block;opacity:0;transform:translateY(20px);}
-.line:nth-of-type(1){animation:textFadeIn 1.5s forwards 1.2s;}
-.line:nth-of-type(2){animation:textFadeIn 1.5s forwards 3s;}
-.line:nth-of-type(3){animation:textFadeIn 1.5s forwards 4.8s;}
-.line:nth-of-type(4){animation:textFadeIn 1.5s forwards 6.5s;color:#ffebd2;}
-
-.highlight{color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.4);}
-
-.next-btn{margin-top:25px;font-size:2rem;opacity:.5;cursor:pointer}
-
-/* 영상 화면 */
-#videoScreen{
-  position:fixed;top:0;left:0;width:100%;height:100%;
-  background:#000;
-  display:none;
-  align-items:center;justify-content:center;
-  flex-direction:column;
-}
-
-.back-btn{
-  position:absolute;top:20px;left:20px;font-size:1.5rem;cursor:pointer
-}
-
-.next-video-btn{
-  position:absolute;
-  right:30px;
-  bottom:30px;
-  font-size:2rem;
-  cursor:pointer;
-  opacity:.7;
-}
-
-#videoMemo{margin-top:15px;opacity:.7}
-
-/* 애니메이션 */
-@keyframes animStar{from{transform:translateY(0)}to{transform:translateY(-2000px)}}
-@keyframes fadeInUp{to{opacity:1}}
-@keyframes textFadeIn{to{opacity:1;transform:translateY(0)}}
+  @media (prefers-reduced-motion:reduce){
+    #stars-a,#stars-b,#stars-c,.shooting,.next-btn.show{animation:none;}
+    .line{opacity:1;transform:none;}
+    .letter-ready .line{animation:none;}
+    .screen{transition:none;}
+  }
 </style>
 </head>
-
 <body>
 
-<div id="stars"></div>
+<div class="sky" aria-hidden="true">
+  <div class="moon"></div>
+  <div id="stars-a" class="stars"></div>
+  <div id="stars-b" class="stars"></div>
+  <div id="stars-c" class="stars"></div>
+  <div class="horizon"></div>
+  <div id="shoot" class="shooting"></div>
+</div>
 
-<!-- 메인 -->
-<div class="container">
-  <div class="message-box">
-
+<div id="mainScreen" class="screen on">
+  <div class="message-box" id="letter">
+    <div class="to-you">To You</div>
     <span class="line">당신이 오늘 마치려던 그 일,</span><br>
     <span class="line">딱 <span class="highlight">하루만</span> 미뤄주실 수 있나요?</span><br><br>
 
@@ -114,67 +321,104 @@
     <span class="line">언젠가 다시 웃을 이유 하나쯤은<br>
     반드시 당신을 찾아올 테니까요.</span>
 
-    <div class="next-btn" onclick="showVideo()"> &gt; </div>
+    <div class="day-mark" id="dayMark"></div>
+    <div class="day-dots" id="dayDots" hidden></div>
 
+    <div class="next-btn" id="nextBtn" role="button" tabindex="0" aria-label="이어서" onclick="showVideo()">&gt;</div>
   </div>
 </div>
 
-<!-- 영상 -->
-<div id="videoScreen">
+<div id="videoScreen" class="screen">
+  <div class="nav-btn back-btn" role="button" tabindex="0" aria-label="돌아가기" onclick="showMain()">←</div>
 
-  <iframe id="videoPlayer"
-    width="80%"
-    height="60%"
-    frameborder="0"
-    allow="autoplay; encrypted-media"
-    allowfullscreen>
-  </iframe>
+  <div class="video-stage">
+    <div class="frame">
+      <iframe id="videoPlayer"
+        allow="autoplay; encrypted-media; picture-in-picture"
+        allowfullscreen
+        title="남겨둔 노래"></iframe>
+    </div>
+    <div id="videoMemo"></div>
+  </div>
 
-  <div id="videoMemo"></div>
+  <div class="nav-btn next-video-btn" role="button" tabindex="0" aria-label="다음 노래" onclick="nextVideo()">&gt;</div>
+</div>
 
-  <div class="back-btn" onclick="showMain()">←</div>
-  <div class="next-video-btn" onclick="nextVideo()"> &gt; </div>
-
+<div class="corner-note" id="sign">
+  고마워, 그리고 감사해 미안해 또 보자
 </div>
 
 <script>
-
-/* 영상 목록 */
-const videos=[
- {id:"ekKnNTpm3Cs", memo:"죽지마"},
+const videos = [
+  {id:"ekKnNTpm3Cs", memo:"죽지마"},
   {id:"RohZ89_w93o", memo:"실패라고 생각하지마"},
   {id:"cS-IiArGmcU", memo:"가족을 생각해"},
   {id:"Rgw5Oaq0M0s", memo:"성숙"},
   {id:"rGRC_Nf8fww", memo:"F.L.Y"},
   {id:"F1vNK4jSYr0", memo:"힘내 쨔샤"},
   {id:"C6st9z_iaao", memo:"나도 이미 알고 있어"}
-  
-
-  
 ];
 
-let currentIndex=-1;
+const DAYS_KEY = "svae-days";
+let currentIndex = -1;
+let starStyle;
 
-/* 랜덤 선택 */
+function todayKey(){
+  const d = new Date();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const day = String(d.getDate()).padStart(2,"0");
+  return `${d.getFullYear()}-${m}-${day}`;
+}
+
+function stayToday(){
+  let days = [];
+  try{ days = JSON.parse(localStorage.getItem(DAYS_KEY) || "[]"); }
+  catch(e){ days = []; }
+  if(!Array.isArray(days)) days = [];
+  const t = todayKey();
+  if(!days.includes(t)) days.push(t);
+  days.sort();
+  try{ localStorage.setItem(DAYS_KEY, JSON.stringify(days)); }
+  catch(e){}
+  return days;
+}
+
+function renderDays(days){
+  const n = days.length;
+  const mark = document.getElementById("dayMark");
+  const dots = document.getElementById("dayDots");
+  if(n <= 1){
+    mark.textContent = "";
+    dots.hidden = true;
+    return;
+  }
+  mark.textContent = `이게 ${n}번째 하루입니다.`;
+  dots.hidden = false;
+  dots.innerHTML = "";
+  const show = Math.min(n, 24);
+  for(let i=0;i<show;i++){
+    dots.appendChild(document.createElement("i"));
+  }
+}
+
 function pickRandom(){
   let i;
   do{
-    i=Math.floor(Math.random()*videos.length);
-  }while(i===currentIndex && videos.length>1);
-
-  currentIndex=i;
+    i = Math.floor(Math.random()*videos.length);
+  }while(i === currentIndex && videos.length > 1);
+  currentIndex = i;
   return videos[i];
 }
 
 function play(v){
-  document.getElementById("videoPlayer").src=
-    `https://www.youtube.com/embed/${v.id}?autoplay=1`;
-  document.getElementById("videoMemo").innerText=v.memo;
+  document.getElementById("videoPlayer").src =
+    `https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0&modestbranding=1`;
+  document.getElementById("videoMemo").textContent = v.memo;
 }
 
 function showVideo(){
-  document.querySelector(".container").style.display="none";
-  document.getElementById("videoScreen").style.display="flex";
+  document.getElementById("mainScreen").classList.remove("on");
+  document.getElementById("videoScreen").classList.add("on");
   play(pickRandom());
 }
 
@@ -183,29 +427,77 @@ function nextVideo(){
 }
 
 function showMain(){
-  document.getElementById("videoScreen").style.display="none";
-  document.querySelector(".container").style.display="flex";
-  document.getElementById("videoPlayer").src="";
+  document.getElementById("videoScreen").classList.remove("on");
+  document.getElementById("mainScreen").classList.add("on");
+  document.getElementById("videoPlayer").src = "";
 }
 
-/* 별 */
-let starStyle;
+function layerShadows(count, size){
+  const w = Math.max(window.innerWidth, 320);
+  let s = "";
+  for(let i=0;i<count;i++){
+    s += `${Math.random()*w}px ${Math.random()*2000}px 0 ${Math.random()*size}px rgba(255,255,255,${0.35+Math.random()*0.65}),`;
+  }
+  return s.slice(0,-1);
+}
+
 function createStars(){
   if(starStyle) starStyle.remove();
-  starStyle=document.createElement("style");
-  let s="";
-  for(let i=0;i<400;i++){
-    s+=`${Math.random()*window.innerWidth}px ${Math.random()*2000}px 0 ${Math.random()*2}px #FFF,`;
-  }
-  starStyle.innerHTML=`#stars,#stars:after{box-shadow:${s.slice(0,-1)};}`;
+  starStyle = document.createElement("style");
+  const a = layerShadows(140, 1.2);
+  const b = layerShadows(90, 1.8);
+  const c = layerShadows(50, 2.4);
+  starStyle.textContent =
+    `#stars-a,#stars-a:after{box-shadow:${a};}` +
+    `#stars-b,#stars-b:after{box-shadow:${b};}` +
+    `#stars-c,#stars-c:after{box-shadow:${c};}`;
   document.head.appendChild(starStyle);
 }
-createStars();
-window.addEventListener("resize",createStars);
 
+function shootOnce(){
+  const el = document.getElementById("shoot");
+  el.classList.remove("go");
+  el.style.top = (8 + Math.random()*36) + "%";
+  el.style.left = (5 + Math.random()*60) + "%";
+  void el.offsetWidth;
+  el.classList.add("go");
+}
+
+function bindKeys(el, fn){
+  el.addEventListener("keydown", e => {
+    if(e.key === "Enter" || e.key === " "){
+      e.preventDefault();
+      fn();
+    }
+  });
+}
+
+createStars();
+window.addEventListener("resize", createStars);
+
+const days = stayToday();
+renderDays(days);
+
+requestAnimationFrame(() => {
+  document.getElementById("letter").classList.add("letter-ready");
+});
+
+const quiet = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const later = quiet ? 0 : 8200;
+setTimeout(() => document.getElementById("nextBtn").classList.add("show"), later);
+if(days.length > 1){
+  setTimeout(() => document.getElementById("dayMark").classList.add("show"), quiet ? 0 : 9000);
+}
+setTimeout(() => document.getElementById("sign").classList.add("show"), quiet ? 0 : 10400);
+
+if(!quiet){
+  setTimeout(shootOnce, 3500);
+  setInterval(shootOnce, 14000);
+}
+
+bindKeys(document.getElementById("nextBtn"), showVideo);
+bindKeys(document.querySelector(".back-btn"), showMain);
+bindKeys(document.querySelector(".next-video-btn"), nextVideo);
 </script>
-<div class="corner-note">
-  고마워, 그리고 감사해 미안해 또 보자
-</div>
 </body>
 </html>
