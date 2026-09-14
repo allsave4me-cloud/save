@@ -278,8 +278,9 @@
     z-index:1;
   }
   .float-comment{
+    --op:.55;
     position:absolute;
-    max-width:min(240px, 22vw);
+    max-width:min(260px, 22vw);
     opacity:0;
     font-size:.88rem;
     line-height:1.65;
@@ -290,8 +291,8 @@
 
   @keyframes commentRise{
     0%{opacity:0;transform:translateY(0);}
-    8%{opacity:.55;}
-    62%{opacity:.4;}
+    8%{opacity:var(--op);}
+    62%{opacity:calc(var(--op) * .72);}
     100%{opacity:0;transform:translateY(-100vh);}
   }
 
@@ -762,6 +763,10 @@ function spawnComment(){
     el.style.textAlign = "right";
   }
   el.style.bottom = (2 + Math.random()*22) + "%";
+  el.style.fontSize = (0.68 + Math.random()*0.7).toFixed(2) + "rem";
+  el.style.setProperty("--op", (0.3 + Math.random()*0.42).toFixed(2));
+  el.style.letterSpacing = ((Math.random()*0.12) - 0.03).toFixed(3) + "em";
+  el.style.fontWeight = Math.random() < 0.25 ? "500" : "400";
   el.style.animationDuration = (10 + Math.random()*4) + "s";
   commentIdx++;
   box.appendChild(el);
